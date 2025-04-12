@@ -1,0 +1,12 @@
+# Ignora arquivos sensíveis ou temporários
+.env
+secrets/
+*.swp
+*.DS_Store
+*.log
+*.bak
+*~
+
+# Ignora configurações locais do editor
+.vscode/
+.idea/

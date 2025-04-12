@@ -1,4 +1,8 @@
 # 🐟 Dotfiles do Daniel — Fish Shell Setup
+![Shell](https://img.shields.io/badge/shell-fish-00aced?logo=gnu-bash&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Last Update](https://img.shields.io/github/last-commit/Komido/dotfiles)
+
 
 Este repositório contém minha configuração pessoal para o terminal Fish Shell no macOS. Foco em produtividade, estética e automações para desenvolvimento.
 
