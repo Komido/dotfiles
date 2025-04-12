@@ -13,6 +13,7 @@ Este repositório contém minha configuração pessoal para o terminal Fish Shel
 - Visual avançado com `eza`, `bat`, Nerd Font
 - Função `proj`: exibição interativa dos meus projetos com metadados
 - Função `fin`: abre o Finder na pasta atual do terminal
+- Função `musica`: Controle o app Música pelo terminal: play/pause, próxima faixa, ajustar volume e listar playlists.
 
 ## 📄 Arquivos
 
