@@ -50,7 +50,7 @@ Abre a pasta atual do terminal no Finder, com tamanho da janela definido.
 ## 🚀 Instalação
 
 ```bash
-git clone https://github.com/seunome/dotfiles ~/.dotfiles
+git clone https://github.com/Komido/dotfiles ~/.dotfiles
 cd ~/.dotfiles
 
 # Dá permissão de execução ao instalador
