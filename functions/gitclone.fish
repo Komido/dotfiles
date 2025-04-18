@@ -7,15 +7,16 @@ function gitclone
 
     set url $argv[1]
     set is_ssh (string match -r '^git@|^ssh://' $url)
+    set target_dir ~/Projetos
 
     echo ""
     echo "🔍 Coletando informações do repositório..."
 
-    # Nome do projeto
     set repo_name (basename (string replace -r '\.git$' '' $url))
 
     echo "📦 Projeto: $repo_name"
     echo "🔗 URL: $url"
+    echo "📁 Destino: $target_dir/$repo_name"
 
     if not test $is_ssh
         echo "🔐 Detectado protocolo HTTPS. Se possível, prefira usar SSH para evitar problemas de autenticação."
@@ -42,10 +43,11 @@ function gitclone
     echo "$ls_remote" | grep 'refs/heads/' | awk '{print "   → " $2}' | sed 's|refs/heads/||'
 
     echo ""
-    read -P "📥 Deseja clonar o repositório \"$repo_name\" para a pasta atual? (s/n) " confirm
+    read -P "📥 Deseja clonar o repositório \"$repo_name\" em ~/Projetos? (s/n) " confirm
     if test $confirm = "s"
-        git clone $url
-        echo "✅ Clonado com sucesso."
+        mkdir -p $target_dir
+        git clone $url $target_dir/$repo_name
+        echo "✅ Clonado com sucesso em: $target_dir/$repo_name"
     else
         echo "🚫 Clone cancelado."
     end

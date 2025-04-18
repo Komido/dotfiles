@@ -3,7 +3,6 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Last Update](https://img.shields.io/github/last-commit/Komido/dotfiles)
 
-
 Este repositório contém minha configuração pessoal para o terminal Fish Shell no macOS. Foco em produtividade, estética e automações para desenvolvimento.
 
 ## 🌟 Features
@@ -13,7 +12,8 @@ Este repositório contém minha configuração pessoal para o terminal Fish Shel
 - Visual avançado com `eza`, `bat`, Nerd Font
 - Função `proj`: exibição interativa dos meus projetos com metadados
 - Função `fin`: abre o Finder na pasta atual do terminal
-- Função `musica`: Controle o app Música pelo terminal: play/pause, próxima faixa, ajustar volume e listar playlists.
+- Função `musica`: controle do app Música pelo terminal (play/pause, próxima faixa, volume, playlists)
+- Função `gitclone`: exibe detalhes do repositório remoto antes de confirmar o clone (clona sempre em `~/Projetos`)
 
 ## 📄 Arquivos
 
@@ -25,7 +25,7 @@ Responsável por carregar:
 - `fzf` (busca fuzzy)
 - `zoxide` (cd inteligente)
 - Aliases personalizados
-- Funções personalizadas como `proj` e `fin`
+- Funções personalizadas como `proj`, `fin`, `musica` e `gitclone`
 
 ### `functions/proj.fish`
 
@@ -40,6 +40,17 @@ Mostra os projetos da pasta `~/Projetos` com:
 ### `functions/fin.fish`
 
 Abre a pasta atual do terminal no Finder, com tamanho da janela definido.
+
+### `functions/gitclone.fish`
+
+Recebe uma URL de repositório (`git@...` ou `https://...`), exibe:
+
+- Nome do projeto
+- Branch padrão
+- Branches disponíveis
+- Teste de acesso ao repositório
+- Confirmação antes de clonar
+- Clona sempre dentro de `~/Projetos`
 
 ## 🛠️ Requisitos
 
@@ -63,15 +74,3 @@ chmod +x install.fish
 
 # Roda o script
 ./install.fish
-
-## 🔗 Extras
-
-Para aplicar o fish como shell padrão:
-
-```bash
-chsh -s (which fish)
-```
-
-## 🧼 Licença
-
-MIT — Sinta-se à vontade para copiar, modificar, usar, sugerir melhorias e distribuir.

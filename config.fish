@@ -23,6 +23,7 @@ if status is-interactive
     alias l="ls -la"
     alias ls="eza --color=always --long --git --no-filesize --icons=always --no-time --no-user --no-permissions"
     alias cd="z"
+    alias code="open -a Cursor"
 
     # Configurações do fzf
     set -gx FZF_CTRL_T_OPTS "
