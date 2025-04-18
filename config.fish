@@ -4,6 +4,9 @@ set -g fish_greeting ""
 set -gx USER (whoami)
 set -gx HOSTNAME (hostname -s)
 
+# Define a versão padrão do Node.js para nvm.fish
+set -gx nvm_default_version lts
+
 # Adiciona o Homebrew ao PATH
 fish_add_path /opt/homebrew/bin
 
