@@ -16,7 +16,7 @@ Este repositório contém minha configuração pessoal para o terminal Fish Shel
 - Função `gitclone`: exibe detalhes do repositório remoto antes de confirmar o clone (clona sempre em `~/Projetos`)
 - Função `maccy`: instala o gerenciador de área de transferência Maccy via Homebrew
 - Função `dotsetup`: executa o `install.fish` a partir de qualquer lugar para atualizar ou reconfigurar o ambiente
-- Função `devutil`: toolkit para devs (gera CUID, UUID, decodifica JWT)
+- Função `devutil`: toolkit para devs (gera CUID, UUID, CPF, CNPJ, decodifica JWT)
 - Função `try_install_tool`: função auxiliar para verificar e instalar ferramentas com `npm` ou `brew`
 - Função `api_get`: faz requisições GET simples de APIs, com suporte a headers
 
@@ -82,6 +82,8 @@ Toolkit prático com comandos para desenvolvimento:
 - `devutil cuid` → gera CUID (usa pacote `cuid-cli`)
 - `devutil uuid` → gera UUID v4 e copia para área de transferência
 - `devutil jwt TOKEN` → decodifica JWT (mostra payload com `jq`)
+- `devutil cpf` → gera um CPF válido e copia sem quebra de linha
+- `devutil cnpj` → gera um CNPJ válido e copia sem quebra de linha
 
 ### `functions/try_install_tool.fish`
 
