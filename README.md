@@ -18,6 +18,7 @@ Este repositório contém minha configuração pessoal para o terminal Fish Shel
 - Função `dotsetup`: executa o `install.fish` a partir de qualquer lugar para atualizar ou reconfigurar o ambiente
 - Função `devutil`: toolkit para devs (gera CUID, UUID, decodifica JWT)
 - Função `try_install_tool`: função auxiliar para verificar e instalar ferramentas com `npm` ou `brew`
+- Função `api_get`: faz requisições GET simples de APIs, com suporte a headers
 
 ## 📄 Arquivos
 
@@ -29,7 +30,7 @@ Responsável por carregar:
 - `fzf` (busca fuzzy)
 - `zoxide` (cd inteligente)
 - Aliases personalizados
-- Funções personalizadas como `proj`, `fin`, `musica`, `gitclone`, `maccy`, `dotsetup`, `devutil`
+- Funções personalizadas como `proj`, `fin`, `musica`, `gitclone`, `maccy`, `dotsetup`, `devutil`, `api_get`
 
 ### `functions/proj.fish`
 
@@ -78,7 +79,7 @@ dotsetup
 
 Toolkit prático com comandos para desenvolvimento:
 
-- `devutil cuid` → gera CUID (usa pacote `cuid`)
+- `devutil cuid` → gera CUID (usa pacote `cuid-cli`)
 - `devutil uuid` → gera UUID v4 e copia para área de transferência
 - `devutil jwt TOKEN` → decodifica JWT (mostra payload com `jq`)
 
@@ -89,14 +90,26 @@ Função auxiliar que verifica se uma ferramenta está instalada e pergunta se d
 #### 📦 Exemplo de uso:
 
 ```bash
-try_install_tool cuid         # instala com npm (padrão)
-try_install_tool jq brew      # instala com brew
+try_install_tool cuid-cli         # instala com npm (padrão)
+try_install_tool jq brew          # instala com brew
 ```
 
 #### 📘 Ajuda:
 
 ```bash
 try_install_tool --help
+```
+
+### `functions/api_get.fish`
+
+Realiza requisições GET para APIs REST.
+
+- Aceita URL como argumento
+- Pode utilizar token de autenticação via variável de ambiente
+- Exibe resposta com `jq` (colorida)
+
+```bash
+api_get https://api.exemplo.com/data
 ```
 
 ## 🛠️ Requisitos
@@ -108,7 +121,7 @@ try_install_tool --help
 - [bat](https://github.com/sharkdp/bat)
 - [eza](https://github.com/eza-community/eza)
 - [jq](https://stedolan.github.io/jq/)
-- [cuid (npm)](https://www.npmjs.com/package/cuid)
+- [cuid-cli (npm)](https://www.npmjs.com/package/cuid-cli)
 - JetBrainsMono Nerd Font
 
 ## 🚀 Primeira Instalação
