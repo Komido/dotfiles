@@ -14,8 +14,8 @@ Este repositório contém minha configuração pessoal para o terminal Fish Shel
 - Função `fin`: abre o Finder na pasta atual do terminal
 - Função `musica`: controle do app Música pelo terminal (play/pause, próxima faixa, volume, playlists)
 - Função `gitclone`: exibe detalhes do repositório remoto antes de confirmar o clone (clona sempre em `~/Projetos`)
-- Função `maccy`: instala e configura o gerenciador de área de transferência Maccy com atalho, inicialização automática e sincronização via iCloud/Dropbox (detecta se já está instalado)
-- Função `clean_maccy`: limpa itens antigos do histórico do Maccy sem remover os fixados
+- Função `maccy`: instala o gerenciador de área de transferência Maccy via Homebrew
+- Função `dotsetup`: executa o `install.fish` a partir de qualquer lugar para atualizar ou reconfigurar o ambiente
 
 ## 📄 Arquivos
 
@@ -27,7 +27,7 @@ Responsável por carregar:
 - `fzf` (busca fuzzy)
 - `zoxide` (cd inteligente)
 - Aliases personalizados
-- Funções personalizadas como `proj`, `fin`, `musica`, `gitclone`, `maccy` e `clean_maccy`
+- Funções personalizadas como `proj`, `fin`, `musica`, `gitclone`, `maccy` e `dotsetup`
 
 ### `functions/proj.fish`
 
@@ -56,22 +56,18 @@ Recebe uma URL de repositório (`git@...` ou `https://...`), exibe:
 
 ### `functions/maccy.fish`
 
-Automatiza a configuração do Maccy, gerenciador de área de transferência para macOS:
+Instala o Maccy (gerenciador de histórico de área de transferência para macOS) via Homebrew:
 
-- Detecta se o app já está instalado
-- Instala via Homebrew (se necessário)
-- Define atalho `⌃ + ⌘ + V` para abrir
-- Ativa inicialização com o sistema
-- Permite sincronizar o histórico via iCloud ou Dropbox
-- Reinicia o app para aplicar todas as configurações
+- Verifica se já está instalado
+- Caso contrário, instala com `brew install --cask maccy`
 
-### `functions/clean_maccy.fish`
+### `functions/dotsetup.fish`
 
-Remove itens antigos do histórico do Maccy **sem apagar itens fixados**:
+Executa o script de instalação dos dotfiles a partir de qualquer lugar.  
+Ideal para atualizar ou reconfigurar o ambiente com um único comando:
 
-- Mantém um número máximo de itens configurável (ex: 1000)
-- Protege os itens com `"pinned": true` nos arquivos JSON
-- Ideal para rodar manualmente ou via agendamento
+```bash
+dotsetup
 
 ## 🛠️ Requisitos
 
@@ -84,7 +80,7 @@ Remove itens antigos do histórico do Maccy **sem apagar itens fixados**:
 - [jq](https://stedolan.github.io/jq/)
 - JetBrainsMono Nerd Font
 
-## 🚀 Instalação
+## 🚀 Primeira Instalação
 
 ```bash
 git clone https://github.com/Komido/dotfiles ~/.dotfiles
