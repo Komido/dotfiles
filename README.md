@@ -91,3 +91,6 @@ chmod +x install.fish
 
 # Roda o script
 ./install.fish
+
+## 🧼 Licença
+MIT — Sinta-se à vontade para copiar, modificar, usar, sugerir melhorias e distribuir.
