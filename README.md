@@ -16,6 +16,8 @@ Este repositório contém minha configuração pessoal para o terminal Fish Shel
 - Função `gitclone`: exibe detalhes do repositório remoto antes de confirmar o clone (clona sempre em `~/Projetos`)
 - Função `maccy`: instala o gerenciador de área de transferência Maccy via Homebrew
 - Função `dotsetup`: executa o `install.fish` a partir de qualquer lugar para atualizar ou reconfigurar o ambiente
+- Função `devutil`: toolkit para devs (gera CUID, UUID, decodifica JWT)
+- Função `try_install_tool`: função auxiliar para verificar e instalar ferramentas com `npm` ou `brew`
 
 ## 📄 Arquivos
 
@@ -27,7 +29,7 @@ Responsável por carregar:
 - `fzf` (busca fuzzy)
 - `zoxide` (cd inteligente)
 - Aliases personalizados
-- Funções personalizadas como `proj`, `fin`, `musica`, `gitclone`, `maccy` e `dotsetup`
+- Funções personalizadas como `proj`, `fin`, `musica`, `gitclone`, `maccy`, `dotsetup`, `devutil`
 
 ### `functions/proj.fish`
 
@@ -68,6 +70,34 @@ Ideal para atualizar ou reconfigurar o ambiente com um único comando:
 
 ```bash
 dotsetup
+```
+
+> ⚠️ O comando `dotsetup` estará disponível somente **após a primeira instalação**, pois ele depende da função ser carregada automaticamente pelo Fish.
+
+### `functions/devutil.fish`
+
+Toolkit prático com comandos para desenvolvimento:
+
+- `devutil cuid` → gera CUID (usa pacote `cuid`)
+- `devutil uuid` → gera UUID v4 e copia para área de transferência
+- `devutil jwt TOKEN` → decodifica JWT (mostra payload com `jq`)
+
+### `functions/try_install_tool.fish`
+
+Função auxiliar que verifica se uma ferramenta está instalada e pergunta se deseja instalar com `npm` (padrão) ou `brew`.
+
+#### 📦 Exemplo de uso:
+
+```bash
+try_install_tool cuid         # instala com npm (padrão)
+try_install_tool jq brew      # instala com brew
+```
+
+#### 📘 Ajuda:
+
+```bash
+try_install_tool --help
+```
 
 ## 🛠️ Requisitos
 
@@ -78,6 +108,7 @@ dotsetup
 - [bat](https://github.com/sharkdp/bat)
 - [eza](https://github.com/eza-community/eza)
 - [jq](https://stedolan.github.io/jq/)
+- [cuid (npm)](https://www.npmjs.com/package/cuid)
 - JetBrainsMono Nerd Font
 
 ## 🚀 Primeira Instalação
@@ -91,6 +122,16 @@ chmod +x install.fish
 
 # Roda o script
 ./install.fish
+```
+
+> ⚠️ Após isso, o comando `dotsetup` estará disponível globalmente no seu terminal.
+
+Para reinstalar ou reconfigurar o ambiente futuramente, basta executar:
+
+```bash
+dotsetup
+```
 
 ## 🧼 Licença
+
 MIT — Sinta-se à vontade para copiar, modificar, usar, sugerir melhorias e distribuir.
