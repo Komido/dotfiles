@@ -14,6 +14,8 @@ Este repositório contém minha configuração pessoal para o terminal Fish Shel
 - Função `fin`: abre o Finder na pasta atual do terminal
 - Função `musica`: controle do app Música pelo terminal (play/pause, próxima faixa, volume, playlists)
 - Função `gitclone`: exibe detalhes do repositório remoto antes de confirmar o clone (clona sempre em `~/Projetos`)
+- Função `maccy`: instala e configura o gerenciador de área de transferência Maccy com atalho, inicialização automática e sincronização via iCloud/Dropbox (detecta se já está instalado)
+- Função `clean_maccy`: limpa itens antigos do histórico do Maccy sem remover os fixados
 
 ## 📄 Arquivos
 
@@ -25,7 +27,7 @@ Responsável por carregar:
 - `fzf` (busca fuzzy)
 - `zoxide` (cd inteligente)
 - Aliases personalizados
-- Funções personalizadas como `proj`, `fin`, `musica` e `gitclone`
+- Funções personalizadas como `proj`, `fin`, `musica`, `gitclone`, `maccy` e `clean_maccy`
 
 ### `functions/proj.fish`
 
@@ -51,6 +53,25 @@ Recebe uma URL de repositório (`git@...` ou `https://...`), exibe:
 - Teste de acesso ao repositório
 - Confirmação antes de clonar
 - Clona sempre dentro de `~/Projetos`
+
+### `functions/maccy.fish`
+
+Automatiza a configuração do Maccy, gerenciador de área de transferência para macOS:
+
+- Detecta se o app já está instalado
+- Instala via Homebrew (se necessário)
+- Define atalho `⌃ + ⌘ + V` para abrir
+- Ativa inicialização com o sistema
+- Permite sincronizar o histórico via iCloud ou Dropbox
+- Reinicia o app para aplicar todas as configurações
+
+### `functions/clean_maccy.fish`
+
+Remove itens antigos do histórico do Maccy **sem apagar itens fixados**:
+
+- Mantém um número máximo de itens configurável (ex: 1000)
+- Protege os itens com `"pinned": true` nos arquivos JSON
+- Ideal para rodar manualmente ou via agendamento
 
 ## 🛠️ Requisitos
 
