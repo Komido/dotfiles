@@ -1,5 +1,25 @@
 function devutil
     switch $argv[1]
+        case cuid
+            try_install_tool cuid-cli
+            set id (cuid)
+            printf "%s" $id | tee /dev/tty | pbcopy
+            printf "\n\n📋 CUID copiado.\n\n"
+
+        case uuid
+            try_install_tool uuidgen brew
+            set id (uuidgen | string lower)
+            printf "%s" $id | tee /dev/tty | pbcopy
+            printf "\n\n📋 UUID copiado.\n\n"
+
+        case jwt
+            try_install_tool jq brew
+            if test (count $argv) -lt 2
+                echo "📥 Informe o token JWT para decodificar:"
+                return 1
+            end
+            echo $argv[2] | cut -d "." -f2 | base64 --decode | jq .
+
         case cpf
             function aleatorio_bloco
                 set -l num (random 0 999)
@@ -34,6 +54,7 @@ function devutil
             set cpf "$base$d1$d2"
             printf "%s" $cpf | tee /dev/tty | pbcopy
             printf "\n\n📋 CPF válido copiado.\n\n"
+
         case cnpj
             function calc_cnpj_digit
                 set -l numbers $argv[1]
