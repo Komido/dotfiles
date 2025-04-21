@@ -2,7 +2,7 @@
 
 echo "🔧 Iniciando instalação dos seus dotfiles..."
 
-set DOTFILES ~/.dotfiles
+set DOTFILES (pwd)
 set CONFIG_DIR ~/.config/fish
 set FUNCTIONS_DIR $CONFIG_DIR/functions
 
