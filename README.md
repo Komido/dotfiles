@@ -1,4 +1,4 @@
-# 🐟 Dotfiles do Daniel — Fish Shell Setup
+# 🐟 Dotfiles — Fish Shell Setup
 
 ![Shell](https://img.shields.io/badge/shell-fish-00aced?logo=gnu-bash&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-green)
