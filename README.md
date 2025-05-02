@@ -1,4 +1,5 @@
 # 🐟 Dotfiles do Daniel — Fish Shell Setup
+
 ![Shell](https://img.shields.io/badge/shell-fish-00aced?logo=gnu-bash&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Last Update](https://img.shields.io/github/last-commit/Komido/dotfiles)
@@ -14,6 +15,7 @@ Este repositório contém minha configuração pessoal para o terminal Fish Shel
 - Função `fin`: abre o Finder na pasta atual do terminal
 - Função `musica`: controle do app Música pelo terminal (play/pause, próxima faixa, volume, playlists)
 - Função `gitclone`: exibe detalhes do repositório remoto antes de confirmar o clone (clona sempre em `~/Projetos`)
+- Função `tempmail`: cria e gerencia e-mails temporários com `mail.tm`, lista inbox com índice numérico e permite ler mensagens diretamente
 - Função `maccy`: instala o gerenciador de área de transferência Maccy via Homebrew
 - Função `dotsetup`: executa o `install.fish` a partir de qualquer lugar para atualizar ou reconfigurar o ambiente
 - Função `devutil`: toolkit para devs (gera CUID, UUID, CPF, CNPJ, decodifica JWT)
@@ -30,11 +32,12 @@ Responsável por carregar:
 - `fzf` (busca fuzzy)
 - `zoxide` (cd inteligente)
 - Aliases personalizados
-- Funções personalizadas como `proj`, `fin`, `musica`, `gitclone`, `maccy`, `dotsetup`, `devutil`, `api_get`
+- Funções personalizadas como `proj`, `fin`, `musica`, `gitclone`, `tempmail`, `maccy`, `dotsetup`, `devutil`, `api_get`
 
 ### `functions/proj.fish`
 
 Mostra os projetos da pasta `~/Projetos` com:
+
 - Tipo (api, app, script, serverless)
 - Versão (package.json)
 - Node version (package.json ou .nvmrc)
@@ -57,6 +60,21 @@ Recebe uma URL de repositório (`git@...` ou `https://...`), exibe:
 - Confirmação antes de clonar
 - Clona sempre dentro de `~/Projetos`
 
+### `functions/tempmail.fish`
+
+Cria um novo e-mail temporário com `mail.tm`, armazena as credenciais no cache e permite:
+
+- Listar a caixa de entrada no terminal (uma linha por e-mail, com índice numérico)
+- Exibir os remetentes e assuntos numerados
+- Selecionar e ler a mensagem diretamente pelo índice
+- Exibir as credenciais salvas
+
+Exemplo de uso:
+
+```bash
+tempmail
+```
+
 ### `functions/maccy.fish`
 
 Instala o Maccy (gerenciador de histórico de área de transferência para macOS) via Homebrew:
@@ -66,14 +84,11 @@ Instala o Maccy (gerenciador de histórico de área de transferência para macOS
 
 ### `functions/dotsetup.fish`
 
-Executa o script de instalação dos dotfiles a partir de qualquer lugar.  
-Ideal para atualizar ou reconfigurar o ambiente com um único comando:
+Executa o script de instalação dos dotfiles a partir de qualquer lugar.
 
 ```bash
 dotsetup
 ```
-
-> ⚠️ O comando `dotsetup` estará disponível somente **após a primeira instalação**, pois ele depende da função ser carregada automaticamente pelo Fish.
 
 ### `functions/devutil.fish`
 
@@ -88,31 +103,6 @@ Toolkit prático com comandos para desenvolvimento:
 ### `functions/try_install_tool.fish`
 
 Função auxiliar que verifica se uma ferramenta está instalada e pergunta se deseja instalar com `npm` (padrão) ou `brew`.
-
-#### 📦 Exemplo de uso:
-
-```bash
-try_install_tool cuid-cli         # instala com npm (padrão)
-try_install_tool jq brew          # instala com brew
-```
-
-#### 📘 Ajuda:
-
-```bash
-try_install_tool --help
-```
-
-### `functions/api_get.fish`
-
-Realiza requisições GET para APIs REST.
-
-- Aceita URL como argumento
-- Pode utilizar token de autenticação via variável de ambiente
-- Exibe resposta com `jq` (colorida)
-
-```bash
-api_get https://api.exemplo.com/data
-```
 
 ## 🛠️ Requisitos
 
@@ -132,16 +122,11 @@ api_get https://api.exemplo.com/data
 git clone https://github.com/Komido/dotfiles ~/.dotfiles
 cd ~/.dotfiles
 
-# Dá permissão de execução ao instalador
 chmod +x install.fish
-
-# Roda o script
 ./install.fish
 ```
 
-> ⚠️ Após isso, o comando `dotsetup` estará disponível globalmente no seu terminal.
-
-Para reinstalar ou reconfigurar o ambiente futuramente, basta executar:
+Para reinstalar ou reconfigurar o ambiente futuramente:
 
 ```bash
 dotsetup
@@ -150,3 +135,19 @@ dotsetup
 ## 🧼 Licença
 
 MIT — Sinta-se à vontade para copiar, modificar, usar, sugerir melhorias e distribuir.
+
+## 💡 Funções disponíveis
+
+```bash
+proj             # Lista projetos com metadados e fzf
+gitclone         # Exibe dados do repositório antes de clonar em ~/Projetos
+fin              # Abre a pasta atual no Finder (com tamanho fixo)
+musica           # Controla o app Música (play/pause/próxima/volume/playlists)
+api_get          # Faz requisição GET simples via curl
+tempmail         # Gera e gerencia e-mails temporários com mail.tm
+devutil          # Utilitários diversos: UUID, slug, base64, senha aleatória etc.
+dotsetup         # Setup auxiliar de pós-instalação e dotfiles
+maccy            # Instala e configura o Maccy via Homebrew
+try_install_tool # Instala ferramentas com brew ou npm (com confirmação)
+dothelp          # Lista e explica todas as funções acima
+```

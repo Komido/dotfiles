@@ -90,16 +90,20 @@ function devutil
             printf "%s" $cnpj | tee /dev/tty | pbcopy
             printf "\n\n📋 CNPJ válido copiado.\n\n"
 
+        case tempmail
+            tempmail $argv[2..-1]
+
         case help '*'
             echo ""
             echo "🔧 devutil — utilitários para dev full stack"
             echo ""
             echo "Comandos disponíveis:"
-            echo "  devutil cuid        → gera um CUID"
-            echo "  devutil uuid        → gera um UUID"
-            echo "  devutil jwt TOKEN   → decodifica um JWT (payload)"
-            echo "  devutil cpf         → gera um CPF válido"
-            echo "  devutil cnpj        → gera um CNPJ válido"
+            echo "  devutil cuid         → gera um CUID"
+            echo "  devutil uuid         → gera um UUID"
+            echo "  devutil jwt TOKEN    → decodifica um JWT (payload)"
+            echo "  devutil cpf          → gera um CPF válido"
+            echo "  devutil cnpj         → gera um CNPJ válido"
+            echo "  devutil tempmail ... → e-mail temporário (new, inbox, read ID)"
             echo ""
     end
 end

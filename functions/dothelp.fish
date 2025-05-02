@@ -1,0 +1,18 @@
+function dothelp
+    echo ""
+    echo "📘 Lista de funções personalizadas disponíveis:"
+    echo ""
+    echo "🔹 proj          → Lista projetos em ~/Projetos com fzf e metadados (versão, node, git, commit)"
+    echo "🔹 gitclone      → Exibe dados do repositório antes de clonar em ~/Projetos"
+    echo "🔹 fin           → Abre a pasta atual no Finder com tamanho de janela definido"
+    echo "🔹 musica        → Controla o app Música do macOS (play, pause, próxima, volume, listar playlists)"
+    echo "🔹 api_get       → Realiza uma requisição GET simples via curl (api_get <url>)"
+    echo "🔹 tempmail      → Gera e gerencia e-mails temporários com mail.tm (em desenvolvimento)"
+    echo "🔹 devutil       → Utilitários diversos: criar UUID, slug, codificar Base64, gerar senha etc"
+    echo "🔹 dotsetup      → Setup auxiliar para dotfiles e pós-instalação"
+    echo "🔹 maccy         → Instala o gerenciador de histórico da área de transferência via Homebrew"
+    echo "🔹 try_install_tool → Função utilitária para instalar ferramentas via brew ou npm com confirmação"
+    echo ""
+    echo "ℹ️  Digite o nome de qualquer função acima no terminal para executar."
+    echo "📁 Todas estão localizadas em ~/.config/fish/functions/"
+end
