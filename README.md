@@ -20,7 +20,7 @@ Este repositório contém minha configuração pessoal para o terminal Fish Shel
 - Função `dotsetup`: executa o `install.fish` a partir de qualquer lugar para atualizar ou reconfigurar o ambiente
 - Função `devutil`: toolkit para devs (gera CUID, UUID, CPF, CNPJ, decodifica JWT)
 - Função `try_install_tool`: função auxiliar para verificar e instalar ferramentas com `npm` ou `brew`
-- Função `api_get`: faz requisições GET simples de APIs, com suporte a headers
+- Função `api_test`: testa APIs REST/GraphQL com suporte a diferentes métodos HTTP e autenticação
 
 ## 📄 Arquivos
 
@@ -32,7 +32,7 @@ Responsável por carregar:
 - `fzf` (busca fuzzy)
 - `zoxide` (cd inteligente)
 - Aliases personalizados
-- Funções personalizadas como `proj`, `fin`, `musica`, `gitclone`, `tempmail`, `maccy`, `dotsetup`, `devutil`, `api_get`
+- Funções personalizadas como `proj`, `fin`, `musica`, `gitclone`, `tempmail`, `maccy`, `dotsetup`, `devutil`, `api_test`
 
 ### `functions/proj.fish`
 
@@ -99,6 +99,56 @@ Toolkit prático com comandos para desenvolvimento:
 - `devutil jwt TOKEN` → decodifica JWT (mostra payload com `jq`)
 - `devutil cpf` → gera um CPF válido e copia sem quebra de linha
 - `devutil cnpj` → gera um CNPJ válido e copia sem quebra de linha
+- `devutil epoch` → mostra timestamp atual (epoch)
+- `devutil epoch [epoch]` → converte epoch para data legível
+
+### `functions/api_test.fish`
+
+Testa APIs REST/GraphQL com suporte a diferentes métodos HTTP e autenticação.  
+**Agora mais simples:**
+
+- Headers: passe como `Chave:Valor` (ex: `Authorization:'Bearer token'`)
+- Dados: passe como `chave=valor` (ex: `name=John age=30`)
+- GraphQL: envie a query como `query='...'`
+- Query Params: adicione `?chave=valor` na URL
+- Path Params: use `:valor` na URL
+
+#### Exemplos de uso:
+
+```bash
+# REST API básica
+api_test get https://api.github.com/users/octocat
+api_test post https://api.example.com/users name=John age=30
+
+# Headers de autenticação
+api_test get https://api.example.com/users Authorization:'Bearer token123'
+api_test post https://api.example.com/users Authorization:'Bearer token123' name=John age=30
+
+# Query Params
+api_test get https://api.example.com/users?page=1&limit=10
+api_test get https://api.example.com/users?page=1&limit=10 Authorization:'Bearer token123'
+
+# Path Params
+api_test get https://api.example.com/users/:id
+api_test get https://api.example.com/users/:id Authorization:'Bearer token123'
+
+# Métodos HTTP
+api_test put https://api.example.com/users/1 name=John age=31
+api_test patch https://api.example.com/users/1 age=32
+api_test delete https://api.example.com/users/1
+
+# GraphQL
+api_test post https://api.example.com/graphql query='query { users { id name } }'
+api_test post https://api.example.com/graphql Authorization:'Bearer token123' query='query { users { id name } }'
+```
+
+**Ordem dos argumentos:**
+
+1. Método HTTP (`get`, `post`, `put`, `delete`, `patch`)
+2. URL do endpoint (pode incluir query params e path params)
+3. Headers (opcional): `Chave:Valor`
+4. Dados (opcional): `chave=valor`
+5. Query GraphQL (opcional): `query='...'`
 
 ### `functions/try_install_tool.fish`
 
@@ -143,7 +193,7 @@ proj             # Lista projetos com metadados e fzf
 gitclone         # Exibe dados do repositório antes de clonar em ~/Projetos
 fin              # Abre a pasta atual no Finder (com tamanho fixo)
 musica           # Controla o app Música (play/pause/próxima/volume/playlists)
-api_get          # Faz requisição GET simples via curl
+api_test         # Testa APIs REST/GraphQL com suporte a diferentes métodos HTTP e autenticação
 tempmail         # Gera e gerencia e-mails temporários com mail.tm
 devutil          # Utilitários diversos: UUID, slug, base64, senha aleatória etc.
 dotsetup         # Setup auxiliar de pós-instalação e dotfiles

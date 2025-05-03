@@ -93,6 +93,16 @@ function devutil
         case tempmail
             tempmail $argv[2..-1]
 
+        case "epoch"
+            if test (count $argv) -gt 1
+                date -r $argv[2] "+%Y-%m-%d %H:%M:%S"
+            else
+                set -l now (date +%s)
+                echo $now | tee /dev/tty | pbcopy
+                echo "✅ Timestamp copiado para a área de transferência."
+            end
+
+
         case help '*'
             echo ""
             echo "🔧 devutil — utilitários para dev full stack"
