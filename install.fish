@@ -45,10 +45,13 @@ if test -f $DOTFILES/config.fish
     ln -sf $DOTFILES/config.fish $CONFIG_DIR/config.fish
 end
 
-# Link de todas as funções
-for func in $DOTFILES/functions/*.fish
-    echo "🔗 Linkando função "(basename $func)"..."
-    ln -sf $func $FUNCTIONS_DIR/(basename $func)
+# Link de todas as funções, incluindo subpastas (ex: devutil)
+for func in (find $DOTFILES/functions -name '*.fish')
+    set relative_path (string replace "$DOTFILES/functions/" "" $func)
+    set target_dir (dirname $relative_path)
+    mkdir -p $FUNCTIONS_DIR/$target_dir
+    echo "🔗 Linkando função $relative_path..."
+    ln -sf $func $FUNCTIONS_DIR/$relative_path
 end
 
 # Define função para instalar ferramentas via brew
