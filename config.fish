@@ -35,3 +35,29 @@ if status is-interactive
       --preview 'bat -n --color=always {}'
       --bind 'ctrl-/:change-preview-window(down|hidden|)'"
 end
+fish_add_path $HOME/.local/bin
+
+# --- Node.js via NVM (corrige PATH no Fish) ---
+if test -d ~/.local/share/nvm
+    # Se estiver usando nvm.fish
+    set -gx NVM_DIR ~/.local/share/nvm
+    set -gx PATH $NVM_DIR/v*/bin $PATH
+    if type -q nvm
+        nvm use default > /dev/null
+    end
+else if test -d ~/.nvm
+    # Se estiver usando o nvm clássico
+    set -gx NVM_DIR ~/.nvm
+    if type -q nvm
+        nvm use default > /dev/null
+    end
+end
+
+# Carrega configurações locais (não versionadas)
+if test -f ~/.config.fish.local
+    source ~/.config.fish.local
+end
+
+
+# Added by Antigravity
+fish_add_path /Users/danielkomido/.antigravity/antigravity/bin

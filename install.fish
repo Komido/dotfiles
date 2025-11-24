@@ -39,9 +39,21 @@ else
     echo "⚠️ Arquitetura desconhecida: $ARCH"
 end
 
+# Função para fazer backup se o arquivo já existir
+function backup_file
+    set target $argv[1]
+    if test -e $target
+        set timestamp (date +%Y%m%d_%H%M%S)
+        set backup_name "$target.bak.$timestamp"
+        echo "📦 Backup: $target -> $backup_name"
+        mv $target $backup_name
+    end
+end
+
 # Link do config principal
 if test -f $DOTFILES/config.fish
     echo "🔗 Linkando config.fish..."
+    backup_file $CONFIG_DIR/config.fish
     ln -sf $DOTFILES/config.fish $CONFIG_DIR/config.fish
 end
 
@@ -50,7 +62,9 @@ for func in (find $DOTFILES/functions -name '*.fish')
     set relative_path (string replace "$DOTFILES/functions/" "" $func)
     set target_dir (dirname $relative_path)
     mkdir -p $FUNCTIONS_DIR/$target_dir
+    
     echo "🔗 Linkando função $relative_path..."
+    backup_file $FUNCTIONS_DIR/$relative_path
     ln -sf $func $FUNCTIONS_DIR/$relative_path
 end
 

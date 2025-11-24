@@ -96,11 +96,22 @@ Toolkit prático com comandos para desenvolvimento:
 
 - `devutil cuid` → gera CUID (usa pacote `cuid-cli`)
 - `devutil uuid` → gera UUID v4 e copia para área de transferência
+- `devutil pass [len]` → gera senha forte (padrão 20 chars)
+- `devutil lorem [type|len]` → gera texto placeholder (word, sentence, paragraph ou número de caracteres)
+- `devutil base64 [op] [txt]` → encode/decode base64
 - `devutil jwt TOKEN` → decodifica JWT (mostra payload com `jq`)
 - `devutil cpf` → gera um CPF válido e copia sem quebra de linha
 - `devutil cnpj` → gera um CNPJ válido e copia sem quebra de linha
 - `devutil epoch` → mostra timestamp atual (epoch)
 - `devutil epoch [epoch]` → converte epoch para data legível
+
+### `functions/dock.fish`
+
+Controla a visibilidade do Dock do macOS:
+
+- `dock hide` → Ativa o "Auto Hide" (ganhar espaço de tela)
+- `dock show` → Desativa o "Auto Hide" (sempre visível)
+- `dock reset` → Reinicia o processo do Dock (útil se travar)
 
 ### `functions/api_test.fish`
 
@@ -182,6 +193,10 @@ Para reinstalar ou reconfigurar o ambiente futuramente:
 dotsetup
 ```
 
+### Configurações Locais
+
+Para variáveis de ambiente sensíveis (tokens) ou configurações específicas da máquina, crie o arquivo `~/.config.fish.local`. Ele será carregado automaticamente e é ignorado pelo Git.
+
 ## 🧼 Licença
 
 MIT — Sinta-se à vontade para copiar, modificar, usar, sugerir melhorias e distribuir.
@@ -195,7 +210,8 @@ fin              # Abre a pasta atual no Finder (com tamanho fixo)
 musica           # Controla o app Música (play/pause/próxima/volume/playlists)
 api_test         # Testa APIs REST/GraphQL com suporte a diferentes métodos HTTP e autenticação
 tempmail         # Gera e gerencia e-mails temporários com mail.tm
-devutil          # Utilitários diversos: UUID, slug, base64, senha aleatória etc.
+devutil          # Utilitários diversos: UUID, pass, lorem, base64, jwt, etc.
+dock             # Controla visibilidade do Dock (hide/show/reset)
 dotsetup         # Setup auxiliar de pós-instalação e dotfiles
 maccy            # Instala e configura o Maccy via Homebrew
 try_install_tool # Instala ferramentas com brew ou npm (com confirmação)

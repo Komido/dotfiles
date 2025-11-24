@@ -36,6 +36,18 @@ function devutil
             source ~/.config/fish/functions/devutil/ports.fish
             devutil_ports $argv
 
+        case pass
+            source ~/.config/fish/functions/devutil/pass.fish
+            devutil_pass $argv
+
+        case lorem
+            source ~/.config/fish/functions/devutil/lorem.fish
+            devutil_lorem $argv
+
+        case base64
+            source ~/.config/fish/functions/devutil/base64.fish
+            devutil_base64 $argv
+
         case help '*'
             echo ""
             echo "🔧 devutil — utilitários para dev full stack"
@@ -44,10 +56,13 @@ function devutil
             echo "  devutil cnpj       → Gera um CNPJ válido"
             echo "  devutil cpf        → Gera um CPF válido"
             echo "  devutil cuid       → Gera um CUID aleatório"
+            echo "  devutil uuid       → Gera um UUID e copia para a área de transferência"
+            echo "  devutil pass       → Gera uma senha forte aleatória"
+            echo "  devutil lorem      → Gera texto Lorem Ipsum"
+            echo "  devutil base64     → Encode/Decode base64"
             echo "  devutil epoch      → Converte epoch para data ou gera timestamp atual"
             echo "  devutil jwt        → Decodifica um JWT e mostra o payload"
             echo "  devutil tempmail   → Gerencia e-mails temporários (criar, inbox, ler)"
-            echo "  devutil uuid       → Gera um UUID e copia para a área de transferência"
             echo "  devutil ports      → Encerra processos escutando em portas"
             echo ""
     end
