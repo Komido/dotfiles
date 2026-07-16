@@ -27,8 +27,7 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 nvm install 20        # o alias `default` apontava para 20
 ```
 
-`~/.zshrc` e `~/.bash_profile` ainda apontam para `~/.nvm`; eles não dão erro com
-o diretório ausente, e voltam a funcionar sozinhos se o nvm clássico for reinstalado.
+`~/.zshrc` e `~/.bash_profile` também foram removidos — veja a seção abaixo.
 
 ## Pacotes globais que existiam (reinstale só o que sentir falta)
 
@@ -68,14 +67,31 @@ quebrado na remoção, apontando para um caminho inexistente. Nada a restaurar.
 v11.11.0, v16.20.0, v18.12.1, v18.13.0, v18.16.1, v18.17.0, v19.0.0, v20.13.1,
 v20.20.2, v22.14.0. Reinstale sob demanda com `nvm install <versão>`.
 
-## O `~/.nvm` volta a aparecer (vazio) — é esperado
+## `~/.zshrc`, `~/.bash_profile` e `~/.oh-my-zsh` também saíram (2026-07-16)
 
-`~/.zshrc` faz `export NVM_DIR=~/.nvm` e `source $(brew --prefix nvm)/nvm.sh`. Ao
-iniciar, o nvm do Homebrew recria `~/.nvm` com dois symlinks (`nvm.sh`, `nvm-exec`)
-apontando para `/opt/homebrew/opt/nvm/libexec`. São 0 bytes, inofensivo.
+O fish é o shell padrão e cobria tudo que esses arquivos faziam:
 
-Foi isso que criou `~/.nvm/versions/node/v20.20.2` em 2026-07-08: uma sessão de
-zsh/bash, não uso real.
+| No zsh/bash | No fish |
+| --- | --- |
+| oh-my-zsh + tema spaceship | starship |
+| `plugins=(git)` | `jhillyerd/plugin-git` |
+| `plugins=(python)` + prompt de virtualenv | starship (nativo) |
+| `NVM_DIR` + `nvm.sh` | nvm.fish |
+| `rbenv init` | nada — rbenv não está instalado, a linha era morta |
+| `alias claude-mem=...` | nada — colado pelo instalador do plugin; o uso real é `npx claude-mem` |
 
-Para o diretório parar de voltar, remova as linhas do nvm de `~/.zshrc` e
-`~/.bash_profile` (não foram mexidas — o fish não depende delas).
+O zsh e o bash continuam instalados e iniciam sem erro; só ficaram sem config.
+Para voltar ao oh-my-zsh: `sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"`.
+
+Isso também matou um zumbi: `~/.zshrc` fazia `source $(brew --prefix nvm)/nvm.sh`
+com `NVM_DIR=~/.nvm`, e o nvm do Homebrew **recriava `~/.nvm`** (0 bytes, dois
+symlinks) a cada início de zsh ou bash. Era essa a origem do
+`~/.nvm/versions/node/v20.20.2` datado de 2026-07-08 — uma sessão de shell, não
+uso real. Sem o `.zshrc`, o diretório não volta mais.
+
+## Pendência conhecida: `~/.rbenv`
+
+269MB com Ruby 3.2.0 e 3.2.2, mas **o rbenv não está instalado** — os binários
+estão órfãos e inutilizáveis em qualquer shell, e já estavam antes desta limpeza.
+Mantido por decisão explícita. Para usar: `brew install rbenv`. Para remover:
+`rm -rf ~/.rbenv`.
