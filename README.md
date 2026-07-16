@@ -47,11 +47,21 @@ Para tokens e configurações específicas da máquina, crie `~/.config.fish.loc
 ## 📦 O que é instalado
 
 Tudo vem do [`Brewfile`](./Brewfile), aplicado com `brew bundle`. Formulae e
-casks — incluindo a Nerd Font. Para registrar algo que você instalou depois:
+casks — incluindo a Nerd Font.
+
+**Instale pelo Homebrew sempre que possível.** Antes de rodar um `curl | sh` de
+alguma documentação, faça `brew search <nome>`. Software que entra fora do brew
+não é atualizado por ninguém, não está no Brewfile (logo, não volta num Mac novo)
+e pode sombrear a versão gerenciada no PATH sem dar erro — foi exatamente isso
+que quebrou o `cd` em 2026-07-16, veja [docs/zoxide-fish-4.8.md](./docs/zoxide-fish-4.8.md).
+
+O `dotdoctor` procura esses casos sozinho. Rode de vez em quando.
+
+Para registrar algo que você instalou pelo brew depois:
 
 ```bash
 brew bundle dump --force   # captura o estado atual da máquina
-brew bundle cleanup        # mostra o que está instalado e não está listado
+dotdoctor                  # aponta o que está instalado e fora do Brewfile
 ```
 
 ## 💡 Funções
@@ -89,6 +99,7 @@ das suas `--description`, então não têm como divergir do código.
 
 | Função | O que faz |
 | --- | --- |
+| `dotdoctor` | Diagnostica o ambiente: binário do brew sombreado por instalação manual, sessão zumbi, link órfão, drift do Brewfile e formulae órfãs. |
 | `up [--check]` | Atualiza Homebrew, Fisher e globais do npm. `--check` só mostra o que está desatualizado. |
 | `dock` | `hide`, `show` ou `reset` do Dock do macOS. |
 | `fin` | Abre a pasta atual no Finder. |
