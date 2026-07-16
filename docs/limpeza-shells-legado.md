@@ -89,6 +89,49 @@ symlinks) a cada início de zsh ou bash. Era essa a origem do
 `~/.nvm/versions/node/v20.20.2` datado de 2026-07-08 — uma sessão de shell, não
 uso real. Sem o `.zshrc`, o diretório não volta mais.
 
+## A formula `nvm` do Homebrew também saiu (2026-07-16)
+
+`brew uninstall nvm` — 10 arquivos, 211 KB. Era o que sobrava do zumbi acima: sem
+o `.zshrc` ela tinha parado de agir, mas continuava instalada e sem uso.
+
+Antes de remover, foi verificado que ela não tem relação nenhuma com o nvm que
+funciona aqui:
+
+| | nvm.fish (o que você usa) | formula do brew (removida) |
+| --- | --- | --- |
+| O quê | plugin do fisher | `libexec/nvm.sh`, um script **bash/zsh** |
+| Onde | `~/.config/fish/functions/nvm.fish` | `/opt/homebrew/Cellar/nvm/0.40.2/` |
+| Dados | `~/.local/share/nvm` (v16, v18, v20, v22) | nenhum |
+
+`brew uses --installed nvm` vinha vazio, `~/.nvm` não existia mais e nenhum
+arquivo de shell referenciava o `nvm.sh`. Depois da remoção, `node --version`
+seguiu em v20.19.0 e o `nvm list` seguiu mostrando as 4 versões.
+
+Para reinstalar (só faz sentido se você voltar a usar zsh/bash): `brew install nvm`.
+
+## 47 formulae órfãs removidas (2026-07-16)
+
+`brew autoremove` levou 46 dependências que nenhum pacote pedia mais — restos que
+o upgrade do **ffmpeg para a 8.1.2** deixou para trás (`aom`, `libass`, `rav1e`,
+`jpeg-xl`, `tesseract`, `icu4c@77`...). Com a formula do nvm, 47 no total:
+**Cellar de 2.2 GB → 1.9 GB**, 133 → 86 formulae.
+
+Foi verificado antes que as 46 formavam um **cluster fechado**: 25 delas
+apareciam como "em uso", mas só por outras da própria lista (`brotli` ← `aom`,
+`jpeg-xl`; `fribidi` ← `libass`, `pango`, `tesseract`). Nenhuma tinha usuário
+fora do grupo, e nenhuma constava em `brew list --installed-on-request`.
+
+Foi preciso rodar o `autoremove` **duas vezes**: remover o primeiro nível deixou
+mais 8 órfãs (`brotli`, `icu4c@77`...), que só ficaram sem usuário depois que
+`aom` e `jpeg-xl` saíram. Vale rodar até dizer "0 unneeded".
+
+Nada quebrou: o ffmpeg foi testado encodando um vídeo real com libx264, e não só
+pelo `--version`. Se um dia algo precisar de uma delas, o brew a reinstala
+sozinha como dependência.
+
+O `dotdoctor` passou a vigiar isso: ele acusa formula órfã, binário do Homebrew
+sombreado por instalação manual e drift do Brewfile.
+
 ## Pendência conhecida: `~/.rbenv`
 
 269MB com Ruby 3.2.0 e 3.2.2, mas **o rbenv não está instalado** — os binários
