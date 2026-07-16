@@ -47,9 +47,21 @@ else
     echo "⚠️ Arquitetura desconhecida: $ARCH"
 end
 
-# Função para fazer backup se o arquivo já existir
+# Faz backup de um arquivo real que seria sobrescrito pelo link.
+#
+# `test -e` segue symlinks, então a partir da segunda execução o alvo já é um
+# link nosso e o `mv` "fazia backup" movendo o ponteiro — gerando um .bak que
+# aponta para o arquivo VIVO no repo. Não preservava nada e acumulava um lixo
+# novo a cada rodada. Um link nosso não tem o que preservar: o conteúdo está
+# versionado no repo.
 function backup_file
     set target $argv[1]
+
+    if test -L $target
+        rm -f $target
+        return
+    end
+
     if test -e $target
         set timestamp (date +%Y%m%d_%H%M%S)
         set backup_name "$target.bak.$timestamp"
@@ -133,10 +145,20 @@ else
     echo "⚠️  nvm.fish indisponível nesta sessão — rode 'exec fish' e depois 'nvm install lts/iron'."
 end
 
-# Define Fish como shell padrão
-set FISH_PATH (which fish)
-if test (echo $SHELL) != $FISH_PATH
-    echo "🐟 Definindo o Fish como shell padrão..."
+# Define Fish como shell padrão.
+#
+# Consulta o shell de login no diretório do usuário, e não $SHELL: essa variável
+# é herdada do processo pai, então rodar o script de dentro de um bash/zsh (ou de
+# um terminal embutido) faz $SHELL vir /bin/zsh mesmo com o fish já configurado —
+# e o chsh dispara à toa, pedindo senha em toda execução.
+echo ""
+set FISH_PATH (command -v fish)
+set LOGIN_SHELL (dscl . -read /Users/$USER UserShell 2>/dev/null | string replace 'UserShell: ' '')
+
+if test "$LOGIN_SHELL" = "$FISH_PATH"
+    echo "✅ Fish já é o shell padrão."
+else
+    echo "🐟 Definindo o Fish como shell padrão (vai pedir sua senha)..."
     if not grep -q $FISH_PATH /etc/shells
         echo $FISH_PATH | sudo tee -a /etc/shells
     end
