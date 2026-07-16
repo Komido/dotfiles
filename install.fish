@@ -16,26 +16,13 @@ if set --query --universal PATH
     set --erase --universal PATH
 end
 
-# Instala Command Line Tools (necessário para o brew funcionar)
-if not type -q git
-    echo "🧰 Instalando Command Line Tools..."
-    xcode-select --install
-end
-
-# Verifica/instala o Homebrew
+# Homebrew e fish são responsabilidade do ./bootstrap.sh — ele é bash e roda numa
+# máquina zero, coisa que este arquivo não faz (é fish; sem fish, não executa).
 if not type -q brew
-    echo "🍺 Instalando Homebrew..."
-    /bin/bash -c "(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    eval (/opt/homebrew/bin/brew shellenv)
-
-    # Verificação de sucesso
-    if not type -q brew
-        echo "❌ Homebrew não foi instalado corretamente. Abortando script."
-        exit 1
-    end
-else
-    echo "✅ Homebrew já instalado."
+    echo "❌ Homebrew não encontrado. Numa máquina nova, comece pelo ./bootstrap.sh."
+    exit 1
 end
+echo "✅ Homebrew já instalado."
 
 # Verifica arquitetura do chip
 set ARCH (uname -m)

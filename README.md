@@ -179,19 +179,34 @@ Função auxiliar que verifica se uma ferramenta está instalada e pergunta se d
 
 ## 🚀 Primeira Instalação
 
-```bash
-git clone https://github.com/Komido/dotfiles ~/.dotfiles
-cd ~/.dotfiles
+Numa máquina nova, comece pelo `bootstrap.sh`. Ele é bash — o `install.fish` é
+fish e não roda antes do fish existir:
 
-chmod +x install.fish
-./install.fish
+```bash
+git clone https://github.com/Komido/dotfiles ~/Projetos/dotfiles
+cd ~/Projetos/dotfiles
+
+chmod +x bootstrap.sh
+./bootstrap.sh
 ```
 
-Para reinstalar ou reconfigurar o ambiente futuramente:
+O `bootstrap.sh` instala Command Line Tools, Homebrew e o fish, e então chama o
+`install.fish` sozinho. Se as Command Line Tools estiverem faltando, ele abre o
+instalador da Apple e pede para você rodar o comando de novo quando terminar —
+esse instalador é gráfico e não dá para esperar por ele dentro do script.
+
+Ao final, abra um terminal novo (ou rode `exec fish`).
+
+O clone pode ficar em qualquer pasta: os scripts se localizam sozinhos.
+
+Para reinstalar ou reconfigurar o ambiente depois, de qualquer lugar:
 
 ```bash
 dotsetup
 ```
+
+O `install.fish` é idempotente — rodar de novo só reafirma o estado, sem
+duplicar nada.
 
 ### Configurações Locais
 
