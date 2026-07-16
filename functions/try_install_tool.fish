@@ -18,12 +18,10 @@ function try_install_tool --argument-names tool method \
         return 0
     end
 
-    # Mapeia tool → comando real (por exemplo: cuid-cli instala cuid)
-    set real_command $tool
-    switch $tool
-        case cuid-cli
-            set real_command cuid
-    end
+    # O mapeamento cuid-cli → cuid saiu daqui: o devutil_cuid era o único usuário
+    # e passou a gerar o CUID nativamente, sem npm. Se um dia aparecer outro
+    # pacote cujo nome difere do binário, o lugar de tratar isso é aqui.
+    set -l real_command $tool
 
     if not type -q $real_command
         set method (string lower $method)
