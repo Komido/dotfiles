@@ -15,7 +15,16 @@ function up --description "Atualiza tudo: Homebrew, Fisher, plugins e pacotes gl
     else
         brew update
         if test $so_conferir = true
-            brew outdated --verbose; or echo "✅ Tudo atualizado."
+            # Olha a SAÍDA, não o exit code: o `brew outdated` sai 0 sempre, com
+            # ou sem pendência, então o `; or echo "tudo atualizado"` que estava
+            # aqui era código morto — a mensagem nunca aparecia, e com tudo em dia
+            # esta seção imprimia o cabeçalho e mais nada.
+            set -l pendentes (brew outdated --verbose)
+            if test (count $pendentes) -eq 0
+                echo "✅ Tudo atualizado."
+            else
+                printf '%s\n' $pendentes
+            end
         else
             brew upgrade
             # Sem isso o Homebrew guarda toda versão antiga que já instalou; são
@@ -49,7 +58,17 @@ function up --description "Atualiza tudo: Homebrew, Fisher, plugins e pacotes gl
         # pasta de globais, então isto atualiza os globais do Node ativo agora.
         echo "ℹ️  Node ativo: "(node --version)
         if test $so_conferir = true
-            npm -g outdated; or echo "✅ Tudo atualizado."
+            # Mesmo tratamento do brew, e pelo motivo oposto: o `npm outdated` sai
+            # com 1 justamente QUANDO HÁ pendências. O `; or echo` daqui estava
+            # invertido — listava os pacotes desatualizados e logo abaixo garantia
+            # que estava tudo atualizado. Olhar a saída evita ter de decorar a
+            # semântica de exit code de cada ferramenta.
+            set -l pendentes (npm -g outdated 2>/dev/null)
+            if test (count $pendentes) -eq 0
+                echo "✅ Tudo atualizado."
+            else
+                printf '%s\n' $pendentes
+            end
         else
             npm -g update
         end
