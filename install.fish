@@ -8,6 +8,14 @@ set FUNCTIONS_DIR $CONFIG_DIR/functions
 
 mkdir -p $FUNCTIONS_DIR
 
+# Um `set -U PATH` congela um snapshot de PATH no fish_variables que atravessa
+# sessões e ignora o config.fish — mudanças de PATH "não pegam" e não há erro.
+# Aqui o PATH é montado só com fish_add_path, no config.fish.
+if set --query --universal PATH
+    echo "🧹 Removendo PATH universal (set -U) — quem manda no PATH é o config.fish."
+    set --erase --universal PATH
+end
+
 # Instala Command Line Tools (necessário para o brew funcionar)
 if not type -q git
     echo "🧰 Instalando Command Line Tools..."
@@ -88,6 +96,42 @@ try_install bat
 try_install eza
 try_install jq
 try_install fd
+
+# --- Fisher + plugins ---
+# Sem isto, o config.fish chama `nvm`, o `type -q nvm` dá falso, o bloco do Node é
+# pulado e a máquina fica SEM node — sem nenhum erro visível.
+echo ""
+echo "🎣 Verificando Fisher e plugins..."
+if not functions -q fisher
+    echo "📦 Instalando Fisher..."
+    curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
+    fisher install jorgebucaran/fisher
+end
+
+for plugin in jorgebucaran/nvm.fish franciscolourenco/done jhillyerd/plugin-git
+    if not fisher list $plugin >/dev/null 2>&1
+        echo "📦 Instalando $plugin..."
+        fisher install $plugin
+    else
+        echo "✅ $plugin já instalado."
+    end
+end
+
+# --- Node.js ---
+# nvm_default_version vem do config.fish; instala a versão se ainda não existir.
+echo ""
+echo "📗 Verificando Node.js..."
+if functions -q nvm
+    set -l alvo (test -n "$nvm_default_version"; and echo $nvm_default_version; or echo lts/iron)
+    if not nvm use --silent $alvo 2>/dev/null
+        echo "📦 Instalando Node ($alvo)..."
+        nvm install $alvo
+    end
+    nvm use --silent $alvo
+    echo "✅ Node "(node --version)" ativo."
+else
+    echo "⚠️  nvm.fish indisponível nesta sessão — rode 'exec fish' e depois 'nvm install lts/iron'."
+end
 
 # Define Fish como shell padrão
 set FISH_PATH (which fish)
