@@ -84,11 +84,23 @@ function api_test --description "Testa APIs REST/GraphQL com headers, dados tipa
         set dados -d $corpo
     end
 
+    # HEAD pede a flag própria do curl, e não `-X HEAD`.
+    #
+    # Com `-X HEAD` o curl manda o método certo, mas continua esperando um corpo
+    # que, por definição, não vem — e aborta com "error 18: transfer closed". O
+    # `--head` faz o curl entender que a resposta é só cabeçalho. O bug era
+    # intermitente de propósito enganoso: contra um servidor que não manda
+    # Content-Length na resposta HEAD (example.com), passava.
+    set -l metodo_args -X (string upper -- $metodo)
+    if test "$metodo" = head
+        set metodo_args --head
+    end
+
     # Corpo e status saem separados: o status é o que você quer ver primeiro ao
     # testar uma API, e o `| jq` engolia essa informação por completo.
     set -l arquivo (mktemp)
     set -l codigo (curl -sS -o $arquivo -w '%{http_code}' \
-        -X (string upper -- $metodo) $headers $dados $url)
+        $metodo_args $headers $dados $url)
     set -l curl_status $status
 
     if test $curl_status -ne 0
