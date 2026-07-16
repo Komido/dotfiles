@@ -2,7 +2,20 @@
 
 echo "🔧 Iniciando instalação dos seus dotfiles..."
 
-set DOTFILES (pwd)
+# O script se localiza sozinho, em vez de confiar no diretório atual.
+#
+# Com `(pwd)`, ele só funcionava se você já estivesse dentro do repo — e ninguém
+# avisava quando não estava. O `dotsetup` (que descobre o repo pelo symlink e
+# chama daqui) e o `bootstrap.sh` (que calcula o caminho e faz `exec fish
+# "$DOTFILES/install.fish"`) rodam SEM dar `cd` antes, então o pwd era o
+# diretório de onde você chamou. O resultado era um silêncio perfeito: nenhum
+# `test -f $DOTFILES/config.fish` batia, nenhuma função era linkada, e no fim
+# saía "✅ Tudo pronto!".
+#
+# `realpath` do arquivo antes do `dirname`: assim também funciona se este script
+# for chamado através de um symlink, caso em que `status dirname` devolveria o
+# diretório do link, e não o do repo.
+set DOTFILES (dirname (realpath (status filename)))
 set CONFIG_DIR ~/.config/fish
 set FUNCTIONS_DIR $CONFIG_DIR/functions
 
