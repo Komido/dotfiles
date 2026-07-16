@@ -1,4 +1,5 @@
-function try_install_tool --argument-names tool method
+function try_install_tool --argument-names tool method \
+    --description "Verifica se uma ferramenta existe e oferece instalar (npm ou brew)"
     if not set -q method; or test -z "$method"
         set method npm
     end

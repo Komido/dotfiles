@@ -1,18 +1,41 @@
-function dothelp
+function dothelp --description "Lista as funções destes dotfiles com suas descrições"
+    # A lista se monta sozinha, a partir dos arquivos e das suas --description.
+    #
+    # A versão anterior era escrita à mão e já tinha apodrecido: anunciava um
+    # `devutil slug` que nunca existiu e esquecia dock, ports e epoch. Toda lista
+    # mantida em paralelo ao código diverge dele — é só questão de tempo.
+    set -l config_link $__fish_config_dir/config.fish
+
+    if not test -L $config_link
+        echo "❌ ~/.config/fish/config.fish não é um link para o repo dos dotfiles."
+        echo "   Rode o ./install.fish de dentro do clone primeiro."
+        return 1
+    end
+
+    set -l repo (dirname (readlink $config_link))
+
     echo ""
-    echo "📘 Lista de funções personalizadas disponíveis:"
+    echo "📘 Funções destes dotfiles"
     echo ""
-    echo "🔹 proj          → Lista projetos em ~/Projetos com fzf e metadados (versão, node, git, commit)"
-    echo "🔹 gitclone      → Exibe dados do repositório antes de clonar em ~/Projetos"
-    echo "🔹 fin           → Abre a pasta atual no Finder com tamanho de janela definido"
-    echo "🔹 musica        → Controla o app Música do macOS (play, pause, próxima, volume, listar playlists)"
-    echo "🔹 api_test      → Testa APIs REST/GraphQL com suporte a diferentes métodos e headers"
-    echo "🔹 tempmail      → Gera e gerencia e-mails temporários com mail.tm (em desenvolvimento)"
-    echo "🔹 devutil       → Utilitários diversos: criar UUID, slug, codificar Base64, gerar senha etc"
-    echo "🔹 dotsetup      → Setup auxiliar para dotfiles e pós-instalação"
-    echo "🔹 maccy         → Instala o gerenciador de histórico da área de transferência via Homebrew"
-    echo "🔹 try_install_tool → Função utilitária para instalar ferramentas via brew ou npm com confirmação"
+
+    for arquivo in $__fish_config_dir/functions/*.fish
+        # Este diretório também guarda as funções do fisher (nvm, git, done): sem
+        # este filtro, o dothelp listaria dezenas de funções que não são suas.
+        # Só entra o que é symlink apontando para dentro do repo.
+        test -L $arquivo; or continue
+        string match -q -- "$repo/*" (readlink $arquivo); or continue
+
+        set -l nome (string replace -r '\.fish$' '' -- (basename $arquivo))
+
+        # Helpers (_dot_describe e cia) são detalhe interno, não interface.
+        string match -q '_*' -- $nome; and continue
+
+        set -l desc (_dot_describe $nome; or echo "—")
+        printf "  🔹 %-14s %s\n" $nome $desc
+    end
+
     echo ""
-    echo "ℹ️  Digite o nome de qualquer função acima no terminal para executar."
-    echo "📁 Todas estão localizadas em ~/.config/fish/functions/"
+    echo "ℹ️  Utilitários de dev: devutil help"
+    echo "📁 Fonte: $repo"
+    echo ""
 end

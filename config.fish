@@ -9,6 +9,23 @@ set -gx HOSTNAME (hostname -s)
 # dentro — o nvm resolve pelo primeiro em ordem alfabética, gallium, que é o Node 16.
 set -gx nvm_default_version lts/iron # Node 20
 
+# Editor que as funções abrem (proj, wt). Um nome de app do macOS, para o `open -a`.
+# Fica aqui, e não espalhado: `open -a Cursor` estava escrito na mão dentro do
+# proj, então trocar de editor exigia caçar a string arquivo por arquivo.
+set -gx DOT_EDITOR Cursor
+
+# --- Autoload das funções em subpastas ---
+# O $fish_function_path não é recursivo: um devutil_uuid.fish dentro de
+# functions/devutil/ não é encontrado sozinho. Registrando a subpasta, o fish
+# resolve cada utilitário por nome (devutil_uuid.fish → devutil_uuid) e o
+# dispatcher do devutil dispensa `source` com caminho fixo.
+#
+# Com guarda de `contains`: sem ela, um `source ~/.config/fish/config.fish` no
+# meio da sessão empilharia o caminho de novo.
+if not contains $__fish_config_dir/functions/devutil $fish_function_path
+    set -a fish_function_path $__fish_config_dir/functions/devutil
+end
+
 # --- PATH ---
 # Tudo aqui, e nada via `set -U PATH`: uma variável universal congela um snapshot
 # que atravessa sessões, ignora este arquivo e sobrevive a edições dele — mudança
@@ -39,15 +56,22 @@ if status is-interactive
     # Inicializa fzf
     fzf --fish | source
 
-    # Inicializa zoxide
-    zoxide init fish | source
+    # Inicializa o zoxide substituindo o próprio `cd`.
+    #
+    # `--cmd cd`, e não `zoxide init fish | source` + `alias cd="z"`: o alias é
+    # justamente o que o zoxide desaconselha ("Avoid aliasing `cd` to `z`
+    # directly, use `zoxide init --cmd=cd fish` instead", dito pelo próprio init).
+    # Ele faz o `cd` passar pelo __zoxide_z, que reimplementa na mão o que o
+    # --cmd já entrega pronto e suportado.
+    #
+    # Dá `cd` (com salto fuzzy) e `cdi` (seleção interativa). Não dá `z`/`zi`.
+    zoxide init fish --cmd cd | source
 
     # Aliases
     alias cat="bat --theme=\$(defaults read -globalDomain AppleInterfaceStyle &> /dev/null && echo default || echo GitHub)"
     alias l="ls -la"
     alias ls="eza --color=always --long --git --no-filesize --icons=always --no-time --no-user --no-permissions"
-    alias cd="z"
-    alias code="open -a Cursor"
+    alias code="open -a $DOT_EDITOR"
 
     # Configurações do fzf
     set -gx FZF_CTRL_T_OPTS "

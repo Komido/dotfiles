@@ -1,4 +1,4 @@
-function musica
+function musica --description "Controla o app Música do macOS (play, pause, volume, playlists)"
     set options "▶ Tocar playlist" "⏸ Pausar" "⏭ Próxima música" "⏮ Anterior" "🔊 Ajustar volume" "🎧 Tocando agora" "🚪 Sair"
     set selected (printf "%s\n" $options | fzf --prompt="🎵 Música > ")
 

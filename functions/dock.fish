@@ -1,4 +1,4 @@
-function dock
+function dock --description "Controla a visibilidade do Dock do macOS (hide|show|reset)"
     set -l cmd $argv[1]
 
     switch $cmd

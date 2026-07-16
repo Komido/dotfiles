@@ -69,32 +69,65 @@ for func in (find $DOTFILES/functions -name '*.fish')
     set relative_path (string replace "$DOTFILES/functions/" "" $func)
     set target_dir (dirname $relative_path)
     mkdir -p $FUNCTIONS_DIR/$target_dir
-    
+
     echo "🔗 Linkando função $relative_path..."
     backup_file $FUNCTIONS_DIR/$relative_path
     ln -sf $func $FUNCTIONS_DIR/$relative_path
 end
 
-# Define função para instalar ferramentas via brew
-function try_install
-    if not type -q $argv[1]
-        echo "📦 Instalando $argv[1]..."
-        brew install $argv[1]
-    else
-        echo "✅ $argv[1] já instalado."
+# Remove links que apontam para arquivos que não existem mais no repo.
+#
+# Renomear ou apagar uma função deixava o symlink velho para trás: o install só
+# cria, nunca removia. O fish então tenta carregar um alvo inexistente e a função
+# some sem erro nenhum — o sintoma é "essa função sumiu" sem causa aparente.
+# Só mexe no que aponta para dentro do repo; funções do fisher não são tocadas.
+echo ""
+echo "🧹 Procurando links órfãos..."
+set -l orfaos 0
+for link in (find $FUNCTIONS_DIR -type l)
+    set -l alvo (readlink $link)
+    string match -q "$DOTFILES/*" $alvo; or continue
+    if not test -e $alvo
+        echo "🗑️  Removendo link órfão: "(string replace "$FUNCTIONS_DIR/" "" $link)
+        rm -f $link
+        set orfaos (math $orfaos + 1)
     end
 end
+if test $orfaos -eq 0
+    echo "✅ Nenhum link órfão."
+end
 
+# --- Dependências, via Brewfile ---
+# A lista vivia aqui como uma sequência de `try_install`, e cobria só formulae.
+# Casks (editor, fonte, ngrok) não estavam versionados em lugar nenhum.
 echo ""
-echo "🧪 Verificando dependências..."
-try_install fish
-try_install starship
-try_install zoxide
-try_install fzf
-try_install bat
-try_install eza
-try_install jq
-try_install fd
+echo "🍺 Aplicando o Brewfile..."
+if test -f $DOTFILES/Brewfile
+    brew bundle --file $DOTFILES/Brewfile
+else
+    echo "⚠️  Brewfile não encontrado em $DOTFILES — pulando."
+end
+
+# Avisa se o próprio fish foi atualizado agora.
+#
+# O Homebrew apaga o diretório da versão antiga, e TODA sessão de fish já aberta
+# guarda o caminho dela no $fish_function_path. Essas sessões viram zumbis: as
+# setas param de funcionar ("Unknown command: up-or-search", porque a função mora
+# na pasta que sumiu) e funções somem sem explicação. O sintoma não lembra em
+# nada a causa, então o aviso precisa ser explícito.
+#
+# $version é a versão do interpretador que está executando este script; o
+# `fish --version` lê o binário no disco. Diferentes = trocaram o fish agora.
+set -l fish_no_disco (fish --version | string match -rg 'version ([0-9.]+)')
+if test -n "$fish_no_disco" -a "$version" != "$fish_no_disco"
+    echo ""
+    set_color -o bryellow
+    echo "⚠️  O FISH FOI ATUALIZADO NESTA EXECUÇÃO ($version → $fish_no_disco)."
+    set_color normal
+    echo "   Todo terminal que já estava aberto ficou quebrado: as setas param de"
+    echo "   buscar histórico e algumas funções somem. Não é a sua config."
+    echo "   Feche os terminais abertos, ou rode 'exec fish' em cada um."
+end
 
 # --- Fisher + plugins ---
 # Sem isto, o config.fish chama `nvm`, o `type -q nvm` dá falso, o bloco do Node é
@@ -153,5 +186,5 @@ else
 end
 
 echo ""
-echo "🎨 Lembrete: configure a JetBrainsMono Nerd Font no seu terminal."
+echo "🎨 A JetBrainsMono Nerd Font vem pelo Brewfile — falta só selecioná-la no seu terminal."
 echo "✅ Tudo pronto! Reinicie o terminal ou execute: exec fish"

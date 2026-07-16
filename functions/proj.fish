@@ -1,4 +1,4 @@
-function proj
+function proj --description "Lista os projetos em ~/Projetos com metadados e abre o escolhido"
     set base_dir ~/Projetos
     set choices
 
@@ -94,7 +94,7 @@ function proj
         set path (string split " ->> " $selected)[3]
         if test "$path" != /dev/null
             cd $path
-            open -a Cursor $path
+            open -a $DOT_EDITOR $path
         end
     end
 end

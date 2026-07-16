@@ -1,4 +1,4 @@
-function fin
+function fin --description "Abre a pasta atual no Finder com a janela dimensionada"
     set path (pwd)
     osascript -e "
     tell application \"Finder\"
