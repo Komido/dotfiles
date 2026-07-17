@@ -1,9 +1,14 @@
 # Tudo aqui é prefixado com _devutil_tempmail_.
 #
-# A versão anterior definia `inbox`, `read_message`, `create_account`,
+# A versão original definia `inbox`, `read_message`, `create_account`,
 # `save_session` e `show_credentials` como funções GLOBAIS: nomes genéricos
 # demais para viverem soltos no shell, prontos para colidir com um script ou com
 # um binário de mesmo nome.
+#
+# A navegação é fzf, e não um menu numerado com `read`: o menu de texto reimprime
+# tudo a cada ação e vai empilhando o terminal. O fzf desenha numa região fixa,
+# aceita seta, filtra por digitação e some ao sair — e já é o padrão do resto
+# deste repo (proj, musica, devutil ports).
 
 # Caminho como função, e não `set -g` no topo: arquivo de autoload deve conter só
 # definições — código solto ali roda como efeito colateral do carregamento, e uma
@@ -35,6 +40,27 @@ function _devutil_tempmail_token --description "Lê o token salvo do tempmail"
     echo $token
 end
 
+function _devutil_tempmail_email --description "Lê o endereço da sessão salva"
+    set -l cache (_devutil_tempmail_cache)
+    test -f $cache; or return 1
+    set -l email (jq -r '.email // empty' $cache 2>/dev/null)
+    test -n "$email"; or return 1
+    echo $email
+end
+
+function _devutil_tempmail_buscar --description "Busca as mensagens: uma linha id/de/assunto/lida por mensagem"
+    # Códigos de saída distintos porque "caixa vazia" e "falhou" produzem a mesma
+    # saída (nenhuma linha), e quem chama precisa saber a diferença: uma pede
+    # "📭 vazia", a outra pede "❌ token expirou".
+    set -l token (_devutil_tempmail_token)
+    test -n "$token"; or return 2
+
+    set -l resposta (curl -sf -H "Authorization: Bearer $token" https://api.mail.tm/messages | string collect)
+    test $status -eq 0 -a -n "$resposta"; or return 1
+
+    echo $resposta | jq -r '.["hydra:member"][]? | "\(.id)\t\(.from.address)\t\(.subject)\t\(.seen)\t\(.createdAt)"'
+end
+
 function _devutil_tempmail_criar --description "Cria uma conta nova no mail.tm"
     set -l dominio (curl -sf https://api.mail.tm/domains | jq -r '.["hydra:member"][0].domain // empty')
     if test -z "$dominio"
@@ -44,8 +70,6 @@ function _devutil_tempmail_criar --description "Cria uma conta nova no mail.tm"
 
     set -l email (uuidgen | string lower)@$dominio
     set -l senha (string split '@' -- $email)[1]
-
-    echo "📧 E-mail gerado: $email"
 
     # jq -n --arg escapa o valor; montar o JSON com interpolação de string
     # quebraria no primeiro caractere especial.
@@ -66,114 +90,188 @@ function _devutil_tempmail_criar --description "Cria uma conta nova no mail.tm"
         return 1
     end
 
+    # O cache de mensagens é da conta antiga; sem limpar, o preview mostraria
+    # e-mail de outro endereço.
+    rm -rf ~/.cache/tempmail-msgs
+
     _devutil_tempmail_salvar $email $senha $token
     printf '%s' $email | pbcopy
-    echo "✅ E-mail salvo e copiado para a área de transferência."
+    # Silencioso no sucesso: quem chama (o menu) mostra a confirmação no cabeçalho
+    # e o novo endereço já aparece no topo. Imprimir aqui vazaria acima do menu —
+    # e as mensagens de erro acima é que precisam ser vistas, essas ficam.
 end
 
-function _devutil_tempmail_inbox --description "Lista a caixa de entrada e abre a mensagem escolhida"
-    set -l token (_devutil_tempmail_token)
-    if test -z "$token"
-        echo "❌ Nenhuma sessão salva. Crie um e-mail primeiro (opção 1)."
-        return 1
+function _devutil_tempmail_itens --description "Monta as linhas do fzf a partir das mensagens"
+    for linha in $argv
+        set -l c (string split \t -- $linha)
+        # `.seen` diz se já foi aberta — poupa reler o que você já leu.
+        set -l icone 📨
+        test "$c[4]" = true; and set icone 📖
+        set -l quando (_devutil_tempmail_hora $c[5] "%H:%M")
+        printf "%s\t%s %s  %-30s  %s\n" $c[1] $icone $quando (string sub -l 30 -- $c[2]) $c[3]
     end
-
-    set -l mensagens (curl -sf -H "Authorization: Bearer $token" https://api.mail.tm/messages)
-    if test -z "$mensagens"
-        echo "❌ Falha ao consultar a caixa (token pode ter expirado)."
-        return 1
-    end
-
-    set -l total (echo $mensagens | jq '.["hydra:member"] | length')
-    if test "$total" -eq 0
-        echo "📭 Caixa de entrada vazia."
-        return 0
-    end
-
-    # Uma linha por mensagem, formatada pelo jq: o loop anterior fazia um
-    # base64 + decode + 3 chamadas de jq por mensagem só para ler 3 campos.
-    set -l linhas (echo $mensagens | jq -r '.["hydra:member"][] | "\(.id)\t\(.from.address)\t\(.subject)"')
-
-    echo "📬 Caixa de Entrada ($total):"
-    set -l ids
-    set -l i 1
-    for linha in $linhas
-        set -l campos (string split \t -- $linha)
-        set -a ids $campos[1]
-        printf "  [%d] 📨 %s — 📌 %s\n" $i $campos[2] $campos[3]
-        set i (math $i + 1)
-    end
-
-    echo ""
-    read -l -P "🆔 Número da mensagem para ler (Enter para sair): " escolha
-
-    if test -z "$escolha"
-        echo "🚪 Saindo."
-        return 0
-    end
-
-    if not string match -qr '^\d+$' -- $escolha; or test $escolha -lt 1 -o $escolha -gt (count $ids)
-        echo "❌ Número inválido."
-        return 1
-    end
-
-    _devutil_tempmail_ler $ids[$escolha]
 end
 
-function _devutil_tempmail_ler --description "Mostra uma mensagem do tempmail pelo ID"
-    set -l token (_devutil_tempmail_token)
-    if test -z "$token"
-        echo "❌ Nenhuma sessão salva."
-        return 1
-    end
+function _devutil_tempmail_inbox --description "Caixa de entrada navegável, com preview"
+    while true
+        # clear a cada volta: o fzf com --height desenha inline (não em tela
+        # cheia), então qualquer coisa impressa na volta anterior — a mensagem que
+        # você abriu no less, um erro — ficaria acima da caixa quando ela
+        # redesenha. Limpar antes de desenhar mata esse acúmulo.
+        clear
+        set -l linhas (_devutil_tempmail_buscar)
+        set -l resultado $status
 
+        switch $resultado
+            case 2
+                echo "❌ Nenhuma sessão. Crie um e-mail primeiro."
+                return 1
+            case 1
+                echo "❌ Falha ao consultar a caixa (o token pode ter expirado)."
+                return 1
+        end
+
+        # Navegação como item da lista, no padrão do ti-hooks (`← não, voltar`):
+        # a ação fica visível e alcançável pela seta, em vez de virar uma legenda
+        # de teclas que ninguém lê.
+        #
+        # Via printf, e não "__atualizar\t↻": o fish NÃO interpreta \t dentro de
+        # aspas (nem duplas nem simples) — sairia o literal barra-t, o
+        # --delimiter do fzf não acharia o campo e o id apareceria na tela.
+        set -l itens (printf '__atualizar\t↻ Atualizar') (printf '__voltar\t← Voltar ao menu')
+        if test (count $linhas) -gt 0
+            set -p itens (_devutil_tempmail_itens $linhas)
+        end
+
+        set -l cabecalho (_devutil_tempmail_email)
+        if test (count $linhas) -eq 0
+            set cabecalho "$cabecalho — 📭 caixa vazia"
+        else
+            set cabecalho "$cabecalho — 📬 "(count $linhas)
+        end
+
+        set -l escolha (printf '%s\n' $itens | fzf \
+            --delimiter=\t --with-nth=2 --ansi \
+            --height=90% --reverse --border \
+            --prompt="📫 " \
+            --header="$cabecalho" \
+            --preview='fish -c "_devutil_tempmail_preview {1}"' \
+            --preview-window=right,55%,wrap)
+
+        # ESC devolve vazio: sai como se fosse "voltar".
+        test -n "$escolha"; or return 0
+
+        set -l id (string split \t -- $escolha)[1]
+        switch $id
+            case __voltar
+                return 0
+            case __atualizar
+                # O cache é por mensagem, então atualizar não precisa derrubá-lo;
+                # só a lista é reconsultada.
+                continue
+            case '*'
+                _devutil_tempmail_ler $id
+        end
+    end
+end
+
+
+function _devutil_tempmail_ler --description "Abre uma mensagem no pager e copia o código, se houver"
     set -l id $argv[1]
-    if test -z "$id"
-        read -l -P "🆔 ID da mensagem: " id
-        test -n "$id"; or return 1
+    set -l arquivo ~/.cache/tempmail-msgs/$id.json
+
+    # O preview já baixou e guardou; aqui normalmente é só ler do disco.
+    if not test -f $arquivo
+        set -l token (_devutil_tempmail_token)
+        test -n "$token"; or begin
+            echo "❌ Nenhuma sessão salva."
+            return 1
+        end
+        mkdir -p (dirname $arquivo)
+        curl -sf -H "Authorization: Bearer $token" https://api.mail.tm/messages/$id >$arquivo 2>/dev/null
+        or begin
+            rm -f $arquivo
+            echo "❌ Falha ao buscar a mensagem."
+            return 1
+        end
     end
 
-    curl -sf -H "Authorization: Bearer $token" https://api.mail.tm/messages/$id \
-        | jq -r '"\n📩 Assunto: \(.subject)\n👤 De: \(.from.address)\n\n\(.text)"'
+    # Códigos de confirmação são o motivo nº 1 de se abrir um e-mail temporário;
+    # achá-los e já copiar poupa o select-com-o-mouse.
+    set -l texto (jq -r '.text // empty' $arquivo | string collect)
+    set -l codigo (echo $texto | string match -rg '\b(\d{4,8})\b' | head -1)
+
+    test -n "$codigo"; and printf '%s' $codigo | pbcopy
+
+    # SEMPRE pelo less, e sem `-F` nem `-X`.
+    #
+    # A caixa é um fzf com --height, que desenha inline (não em tela cheia). Ao
+    # voltar para ela, o fzf redesenha logo abaixo do cursor — então tudo que
+    # esta função imprimir DIRETO no terminal fica preso acima da caixa. Foi o
+    # texto do corpo que vazou no topo da tela.
+    #
+    # A versão anterior usava `less -R -F -X`: `-F` faz o less despejar e sair na
+    # hora se o conteúdo cabe numa tela, e `-X` o impede de usar a tela
+    # alternativa — a combinação exata que deixa o texto para trás. O `less -R`
+    # puro entra na tela alternativa e a restaura ao sair (tecla q), devolvendo a
+    # caixa sem sujeira. Vale a tecla q até para mensagem curta: é o preço de não
+    # vazar.
+    begin
+        if test -n "$codigo"
+            set_color brgreen
+            echo "🔑 Código $codigo — copiado para a área de transferência."
+            set_color normal
+            echo ""
+        end
+        _devutil_tempmail_preview $id
+        echo ""
+        set_color brblack
+        echo "(q volta para a caixa)"
+        set_color normal
+    end | less -R
 end
 
-function _devutil_tempmail_credenciais --description "Mostra as credenciais salvas do tempmail"
-    set -l cache (_devutil_tempmail_cache)
-    if not test -f $cache
-        echo "❌ Nenhuma credencial encontrada."
-        return 1
-    end
-    echo "🔐 Credenciais salvas ($cache):"
-    jq . $cache
+function _devutil_tempmail_copiar --description "Copia o endereço da sessão atual"
+    # Silencioso: o menu confirma no cabeçalho e o preview já mostra o endereço.
+    set -l email (_devutil_tempmail_email)
+    test -n "$email"; or return 1
+    printf '%s' $email | pbcopy
 end
+
+function _devutil_tempmail_menu_itens --description "Linhas do menu do tempmail (id + rótulo)"
+    printf 'inbox\t📥 Caixa de entrada\n'
+    printf 'novo\t✨ Novo e-mail temporário\n'
+    printf 'copiar\t📋 Copiar o endereço atual\n'
+    printf 'cred\t🔐 Credenciais salvas\n'
+    printf 'sair\t🚪 Sair\n'
+end
+
+# _devutil_tempmail_header, _enter e _action ficam em arquivos próprios: o fzf os
+# chama em shells novos (via transform-header/transform/execute), que só resolvem
+# função por autoload — ou seja, por arquivo com o nome dela.
 
 function devutil_tempmail --description "Cria e gerencia e-mails temporários via mail.tm"
-    if not type -q jq
-        echo "❌ jq não encontrado. Instale com: brew install jq"
-        return 1
-    end
-
-    echo ""
-    echo "📫 TEMPMAIL — e-mail temporário para testes"
-    echo "  1) Novo e-mail temporário"
-    echo "  2) Ver caixa de entrada"
-    echo "  3) Ler mensagem (ID manual)"
-    echo "  4) Ver credenciais salvas"
-    echo ""
-
-    read -l -P "Escolha uma opção (1/2/3/4): " escolha
-
-    switch $escolha
-        case 1
-            _devutil_tempmail_criar
-        case 2
-            _devutil_tempmail_inbox
-        case 3
-            _devutil_tempmail_ler
-        case 4
-            _devutil_tempmail_credenciais
-        case '*'
-            echo "❌ Opção inválida."
+    for dep in jq fzf
+        if not type -q $dep
+            echo "❌ $dep não encontrado. Instale com: brew install $dep"
             return 1
+        end
     end
+
+    # Um único fzf, que fica de pé a sessão inteira: a lista da esquerda é fixa e
+    # cada Enter roda uma ação via bind (execute/execute-silent) sem fechar o fzf.
+    # A versão anterior era um laço que derrubava e recriava o fzf a cada ação —
+    # o intervalo entre derrubar e recriar (mais a latência do curl ao criar) era
+    # a tela preta que piscava.
+    #
+    # $SHELL aqui é o zsh, e o fzf roda os binds por ele; por isso cada bind chama
+    # `fish -c` explicitamente, senão as funções (que são do fish) não existiriam.
+    _devutil_tempmail_menu_itens | fzf \
+        --delimiter=\t --with-nth=2 --ansi \
+        --height=90% --reverse --border \
+        --prompt="📫 " \
+        --header=(_devutil_tempmail_header | string collect) \
+        --preview='fish -c "_devutil_tempmail_menu_preview {1}"' \
+        --preview-window=right,55%,wrap \
+        --bind='enter:transform:fish -c "_devutil_tempmail_enter {1}"'
 end
