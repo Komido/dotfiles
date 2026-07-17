@@ -132,6 +132,37 @@ sozinha como dependência.
 O `dotdoctor` passou a vigiar isso: ele acusa formula órfã, binário do Homebrew
 sombreado por instalação manual e drift do Brewfile.
 
+## Gotcha: globais de npm são por versão de Node (pnpm, yarn, etc.)
+
+Depois que o `config.fish` passou a montar o PATH só com a versão de Node **ativa**,
+um global instalado em outra versão some do PATH. O sintoma é enganoso —
+`fish: Unknown command: pnpm` num terminal que abre normalmente.
+
+Foi o que aconteceu com o `pnpm`: ele estava instalado como global só no **Node v22**.
+O bug antigo do glob (`set -gx PATH $NVM_DIR/v*/bin $PATH`) colocava as quatro versões
+no PATH ao mesmo tempo, então o `pnpm` do v22 era alcançado por acaso, mesmo com o
+`node` sendo outro. Com o PATH limpo (só o v20 ativo), esse acesso acidental sumiu — o
+`pnpm` não foi removido, só deixou de vazar entre versões.
+
+**Não reinstale o global por versão.** Use o `corepack`, que vem com o Node e lê o
+campo `packageManager` do projeto:
+
+```fish
+corepack enable pnpm    # cria o shim no bin da versão de Node ATIVA
+```
+
+Dentro de um projeto que declara `"packageManager": "pnpm@10.19.0"`, o corepack usa
+exatamente essa versão, sem você gerenciar nada. Reverter: `corepack disable`.
+
+Duas consequências a lembrar:
+
+- O shim vive no bin de **cada** versão de Node. Ao trocar de versão (`nvm use 22`),
+  rode `corepack enable pnpm` de novo naquela versão, ou o `pnpm` some outra vez.
+- Qualquer outro global que você tenha instalado com `npm install -g` em uma versão
+  específica (`vercel`, `serverless`, CLIs diversas) tem o mesmo comportamento — se
+  sumir depois de trocar de Node, é isto, não a config quebrada. `npm ls -g` na versão
+  onde ele estava mostra o que existe lá.
+
 ## Pendência conhecida: `~/.rbenv`
 
 269MB com Ruby 3.2.0 e 3.2.2, mas **o rbenv não está instalado** — os binários
