@@ -92,7 +92,7 @@ das suas `--description`, então não têm como divergir do código.
 | `api_test` | Testa APIs REST/GraphQL. Mostra o status HTTP; `chave=valor` é string, `chave:=valor` é JSON puro. |
 | `envdiff [.env] [.env.example]` | Compara os dois e aponta chave faltando, chave declarada sem valor e chave só local. |
 | `tunnel [porta]` | Expõe uma porta local na internet (cloudflared ou ngrok). Sem argumento, escolhe entre as portas que estão escutando. |
-| `devutil` | Utilitários: `uuid`, `cuid`, `cpf`, `cnpj` (ou `cnpj novo`, alfanumérico), `jwt`, `pass`, `lorem`, `base64`, `epoch`, `ports`, `tempmail`. Sem argumento abre o menu fzf, onde Enter gera e copia sem fechar. |
+| `devutil` | Utilitários de dev: menu fzf + 11 subcomandos — veja [a seção própria](#-devutil). |
 | `slug` | Texto → slug URL-safe, tratando acentuação. Aceita argumento ou stdin. |
 
 ### Sistema
@@ -106,6 +106,32 @@ das suas `--description`, então não têm como divergir do código.
 | `musica` | Controla o app Música (play, pause, volume, playlists). |
 | `dotsetup` | Reexecuta o `install.fish` de qualquer lugar. |
 | `try_install_tool` | Verifica se uma ferramenta existe e oferece instalar via npm ou brew. |
+
+### 🔧 devutil
+
+`devutil` sem argumento abre um menu fzf persistente: Enter gera e copia sem
+fechar o menu, o preview mostra o que acabou de ir para a área de transferência
+e Esc sai. `devutil <nome>` roda o subcomando direto, sem menu.
+
+| Subcomando | O que faz |
+| --- | --- |
+| `uuid` | UUID v4. |
+| `cuid` | CUID, o mesmo formato do `@default(cuid())` do Prisma. |
+| `cpf` | CPF válido no módulo 11 (evita os de dígitos repetidos, que validador real rejeita). |
+| `cnpj [novo]` | CNPJ válido. `novo` gera o alfanumérico da Receita (jul/2026): letras na raiz, DVs numéricos. |
+| `pass [n]` | Senha forte, padrão 20 caracteres, sem ambíguos (0/O, l/1/I). |
+| `lorem` | Lorem Ipsum: `word`, `sentence`, `paragraph` ou nº de caracteres. |
+| `epoch [ts]` | Sem argumento, o timestamp atual. Com um epoch (aceita milissegundos), converte para data legível. |
+| `base64` | `encode`/`decode`, aceita stdin e o base64url de JWT. |
+| `jwt <token>` | Decodifica header, payload e validade. |
+| `ports` | Lista processos escutando em portas TCP e encerra o escolhido. |
+| `tempmail` | E-mails descartáveis via mail.tm. A sessão persiste em `~/.cache/tempmail.json`, então a caixa sobrevive entre usos. |
+
+Os geradores copiam o valor **cru** para a área de transferência — pronto para
+colar em input de formulário; CPF e CNPJ mostram a forma com máscara só na
+exibição. O que o menu grava para o preview é efêmero: o cache
+(`~/.cache/devutil-last`) é apagado quando o menu fecha, para senha gerada não
+sobreviver em texto plano no disco.
 
 ### Exemplos de `api_test`
 
