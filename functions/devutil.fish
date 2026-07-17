@@ -50,6 +50,10 @@ function _devutil_menu --description "Menu interativo do devutil (fzf persistent
         --preview='fish -c "_devutil_menu_preview {1}"' \
         --preview-window=right,55%,wrap \
         --bind='enter:transform:fish -c "_devutil_menu_enter {1}"'
+
+    # Os valores gerados (inclusive senhas) ficam em texto plano nesse cache
+    # só para o preview; apagar ao sair para nada sensível sobreviver ao menu.
+    rm -rf ~/.cache/devutil-last
 end
 
 function _devutil_menu_itens --description "Linhas do menu do devutil (id + rótulo)"
