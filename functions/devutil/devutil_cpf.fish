@@ -33,6 +33,8 @@ function devutil_cpf --description "Gera um CPF válido e copia para a área de 
     set -l d2 (_devutil_cpf_digito "$base$d1")
     set -l cpf "$base$d1$d2"
 
+    # A máscara é só exibição; o clipboard leva o cru, que é o que se cola.
+    set -l mascara (string replace -r '^(\d{3})(\d{3})(\d{3})(\d{2})$' '$1.$2.$3-$4' -- $cpf)
     printf '%s' $cpf | pbcopy
-    printf '\n%s\n\n📋 CPF válido copiado.\n\n' $cpf
+    printf '\n%s\n%s\n\n📋 CPF válido copiado (sem máscara).\n\n' $cpf $mascara
 end

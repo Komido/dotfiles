@@ -19,6 +19,11 @@ function _devutil_menu_action --description "Executa o item escolhido no menu do
             devutil_$key >/dev/null 2>&1; or return
             pbpaste | string trim >$dir/$key
 
+        case cnpjnovo
+            # Não é uma função própria: é o devutil_cnpj no modo alfanumérico.
+            devutil_cnpj novo >/dev/null 2>&1; or return
+            pbpaste | string trim >$dir/cnpjnovo
+
         case b64enc
             read -l -P "📦 texto para encode: " txt
             test -n "$txt"; or return

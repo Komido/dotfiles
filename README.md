@@ -92,7 +92,7 @@ das suas `--description`, então não têm como divergir do código.
 | `api_test` | Testa APIs REST/GraphQL. Mostra o status HTTP; `chave=valor` é string, `chave:=valor` é JSON puro. |
 | `envdiff [.env] [.env.example]` | Compara os dois e aponta chave faltando, chave declarada sem valor e chave só local. |
 | `tunnel [porta]` | Expõe uma porta local na internet (cloudflared ou ngrok). Sem argumento, escolhe entre as portas que estão escutando. |
-| `devutil` | Utilitários: `uuid`, `cuid`, `cpf`, `cnpj`, `jwt`, `pass`, `lorem`, `base64`, `epoch`, `ports`, `tempmail`. |
+| `devutil` | Utilitários: `uuid`, `cuid`, `cpf`, `cnpj` (ou `cnpj novo`, alfanumérico), `jwt`, `pass`, `lorem`, `base64`, `epoch`, `ports`, `tempmail`. Sem argumento abre o menu fzf, onde Enter gera e copia sem fechar. |
 | `slug` | Texto → slug URL-safe, tratando acentuação. Aceita argumento ou stdin. |
 
 ### Sistema

@@ -18,8 +18,11 @@ function _devutil_menu_preview --description "Preview de cada item do menu do de
             set titulo "👤 CPF válido"
             set desc "CPF que passa na validação de dígito (para testes)."
         case cnpj
-            set titulo "🏢 CNPJ válido"
-            set desc "CNPJ que passa na validação de dígito (para testes)."
+            set titulo "🏢 CNPJ válido (numérico)"
+            set desc "CNPJ no formato tradicional, só dígitos (para testes)."
+        case cnpjnovo
+            set titulo "🏢 CNPJ válido (alfanumérico)"
+            set desc "CNPJ no padrão novo da Receita (jul/2026): raiz com letras, DVs numéricos."
         case pass
             set titulo "🔒 Senha forte"
             set desc "20 caracteres, sem ambíguos (0/O, l/1/I)."
@@ -73,5 +76,14 @@ function _devutil_menu_preview --description "Preview de cada item do menu do de
         set_color normal
         echo ""
         cat $last
+        # O cache não termina em newline (vem de `string trim`); fecha a linha.
+        echo ""
+        # Máscara só na exibição — o clipboard fica com o valor cru do cache.
+        switch $key
+            case cpf
+                string replace -r '^(\d{3})(\d{3})(\d{3})(\d{2})$' '$1.$2.$3-$4' -- (cat $last)
+            case cnpj cnpjnovo
+                string replace -r '^(.{2})(.{3})(.{3})(.{4})(.{2})$' '$1.$2.$3/$4-$5' -- (cat $last)
+        end
     end
 end
