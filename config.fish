@@ -12,7 +12,7 @@ set -gx nvm_default_version lts/iron # Node 20
 # Editor que as funções abrem (proj, wt). Um nome de app do macOS, para o `open -a`.
 # Fica aqui, e não espalhado: `open -a Cursor` estava escrito na mão dentro do
 # proj, então trocar de editor exigia caçar a string arquivo por arquivo.
-set -gx DOT_EDITOR Cursor
+set -gx DOT_EDITOR "Visual Studio Code"
 
 # --- Autoload das funções em subpastas ---
 # O $fish_function_path não é recursivo: um devutil_uuid.fish dentro de
@@ -71,7 +71,7 @@ if status is-interactive
     alias cat="bat --theme=\$(defaults read -globalDomain AppleInterfaceStyle &> /dev/null && echo default || echo GitHub)"
     alias l="ls -la"
     alias ls="eza --color=always --long --git --no-filesize --icons=always --no-time --no-user --no-permissions"
-    alias code="open -a $DOT_EDITOR"
+    alias code="open -a '$DOT_EDITOR'"
 
     # Configurações do fzf
     set -gx FZF_CTRL_T_OPTS "
