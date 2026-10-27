@@ -70,6 +70,7 @@ function _devutil_menu_itens --description "Linhas do menu do devutil (id + rót
     printf 'jwt\t🎫 JWT decode\n'
     printf 'ports\t🔌 Portas — matar processo\n'
     printf 'tempmail\t📫 E-mail temporário\n'
+    printf 'ejetar\t⏏️  Ejetar SSD externo\n'
     printf 'sair\t🚪 Sair\n'
 end
 

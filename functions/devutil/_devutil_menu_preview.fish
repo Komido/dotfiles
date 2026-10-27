@@ -52,6 +52,10 @@ function _devutil_menu_preview --description "Preview de cada item do menu do de
             set titulo "📫 E-mail temporário"
             set desc "Cria e gerencia e-mails descartáveis (mail.tm)."
             set acao "⏎ abre o gerenciador."
+        case ejetar
+            set titulo "⏏️  Ejetar SSD externo"
+            set desc "Fecha o que usa /Volumes/Dev (editor, dev servers) e ejeta com segurança."
+            set acao "⏎ lista o que está usando, pede confirmação e ejeta."
         case sair
             echo "🚪 Fecha o menu."
             return 0

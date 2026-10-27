@@ -10,6 +10,10 @@ function _devutil_menu_enter --description "Ação fzf disparada pelo Enter, por
             # Precisam do terminal (prompt de input, less, fzf próprio): `execute`
             # cede a tela e devolve ao fzf ao terminar.
             echo "execute(fish -c \"_devutil_menu_action $argv[1]\")+refresh-preview"
+        case ejetar
+            # `become` troca o fzf pelo ejetar (mesmo PID): o menu não fica
+            # aberto segurando o volume, e o ejetar já se exclui da lista.
+            echo "become(fish -c \"devutil_ejetar\")"
         case sair
             echo "abort"
     end

@@ -8,8 +8,8 @@
 # entrega o resto para o install.fish.
 #
 # Uso:
-#   git clone https://github.com/Komido/dotfiles ~/Projetos/dotfiles
-#   cd ~/Projetos/dotfiles && ./bootstrap.sh
+#   git clone https://github.com/Komido/dotfiles ~/dotfiles
+#   cd ~/dotfiles && ./bootstrap.sh
 
 set -euo pipefail
 

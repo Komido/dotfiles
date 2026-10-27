@@ -13,8 +13,8 @@ Numa máquina nova, comece pelo `bootstrap.sh`. Ele é bash — o `install.fish`
 fish e não roda antes do fish existir:
 
 ```bash
-git clone https://github.com/Komido/dotfiles ~/Projetos/dotfiles
-cd ~/Projetos/dotfiles
+git clone https://github.com/Komido/dotfiles ~/dotfiles
+cd ~/dotfiles
 
 chmod +x bootstrap.sh
 ./bootstrap.sh
@@ -92,7 +92,7 @@ das suas `--description`, então não têm como divergir do código.
 | `api_test` | Testa APIs REST/GraphQL. Mostra o status HTTP; `chave=valor` é string, `chave:=valor` é JSON puro. |
 | `envdiff [.env] [.env.example]` | Compara os dois e aponta chave faltando, chave declarada sem valor e chave só local. |
 | `tunnel [porta]` | Expõe uma porta local na internet (cloudflared ou ngrok). Sem argumento, escolhe entre as portas que estão escutando. |
-| `devutil` | Utilitários de dev: menu fzf + 11 subcomandos — veja [a seção própria](#-devutil). |
+| `devutil` | Utilitários de dev: menu fzf + 12 subcomandos — veja [a seção própria](#-devutil). |
 | `slug` | Texto → slug URL-safe, tratando acentuação. Aceita argumento ou stdin. |
 
 ### Sistema
@@ -126,6 +126,7 @@ e Esc sai. `devutil <nome>` roda o subcomando direto, sem menu.
 | `jwt <token>` | Decodifica header, payload e validade. |
 | `ports` | Lista processos escutando em portas TCP e encerra o escolhido. |
 | `tempmail` | E-mails descartáveis via mail.tm. A sessão persiste em `~/.cache/tempmail.json`, então a caixa sobrevive entre usos. |
+| `ejetar [volume]` | Ejeta o SSD externo (padrão `/Volumes/Dev`) com segurança: mostra quais apps e projetos seguram o disco, fecha editores pelo AppleScript, manda SIGTERM em dev servers soltos e ejeta. Só força a desmontagem quando o que sobra é a VM do app Claude, e nunca com o Docker Desktop aberto. |
 
 Os geradores copiam o valor **cru** para a área de transferência — pronto para
 colar em input de formulário; CPF e CNPJ mostram a forma com máscara só na
