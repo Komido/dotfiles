@@ -10,3 +10,6 @@ secrets/
 # Ignora configurações locais do editor
 .vscode/
 .idea/
+
+# Configuração local do Claude Code (permissões e afins desta máquina)
+.claude/

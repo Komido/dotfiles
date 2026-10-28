@@ -1,6 +1,11 @@
 function devutil_ejetar --description "Fecha o que usa o SSD externo e ejeta o volume com segurança"
-    # Volume padrão é o SSD de projetos; outro pode vir como argumento.
+    # Volume padrão é onde a pasta de projetos mora de verdade; outro pode vir
+    # como argumento. Com o SSD já desconectado, o link não resolve e fica o Dev.
     set -l vol /Volumes/Dev
+    set -l real (realpath $DOT_PROJECTS 2>/dev/null)
+    if set -l raiz (string match -r '^/Volumes/[^/]+' -- "$real")
+        set vol $raiz
+    end
     if test (count $argv) -gt 0
         set vol (string trim -r -c / -- $argv[1])
     end

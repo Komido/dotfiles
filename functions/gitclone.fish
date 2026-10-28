@@ -1,4 +1,4 @@
-function gitclone --description "Mostra os dados do repositório remoto e clona em ~/Projetos"
+function gitclone --description "Mostra os dados do repositório remoto e clona na pasta de projetos"
     if test (count $argv) -eq 0
         echo "❌ URL do repositório não informada."
         echo "ℹ️  Uso: gitclone <url-do-repositorio>"
@@ -6,7 +6,10 @@ function gitclone --description "Mostra os dados do repositório remoto e clona 
     end
 
     set -l url $argv[1]
-    set -l destino ~/Projetos
+    # Clona pelo caminho de sempre (o symlink), mas só com o SSD montado: sem
+    # ele, o git criaria a pasta e falharia no meio com um erro sem sentido.
+    _dot_projetos >/dev/null; or return 1
+    set -l destino $DOT_PROJECTS
     set -l nome (basename (string replace -r '\.git$' '' -- $url))
 
     echo ""

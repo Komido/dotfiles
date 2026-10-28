@@ -1,5 +1,8 @@
-function proj --description "Lista os projetos em ~/Projetos com metadados e abre o escolhido"
-    set base_dir ~/Projetos
+function proj --description "Lista os projetos com metadados e abre o escolhido no editor"
+    # Varre pelo caminho real (o fd não entra no symlink), mas abre pelo caminho
+    # de sempre: o prompt, o zoxide e o histórico do Claude Code continuam
+    # vendo ~/Projetos/x, e não /Volumes/Dev/Projetos/x.
+    set base_dir (_dot_projetos); or return 1
     set choices
 
     # Cabeçalho formatado como uma "opção fake" para fzf (não selecionável)
@@ -81,7 +84,7 @@ function proj --description "Lista os projetos em ~/Projetos com metadados e abr
         set formatted (printf "%s %-9s %-38s %-20s • %-12s  %s   ⏱ %s" \
             "$icon" "$label" "$name" "v$app_version" "$node" "$git_icon" "$last_commit")
 
-        set choices $choices "$tipo ->> $formatted ->> $dir"
+        set choices $choices "$tipo ->> $formatted ->> "(string replace -- $base_dir $DOT_PROJECTS $dir)
     end
 
     # Exibe com cabeçalho fixo no topo
@@ -94,7 +97,7 @@ function proj --description "Lista os projetos em ~/Projetos com metadados e abr
         set path (string split " ->> " $selected)[3]
         if test "$path" != /dev/null
             cd $path
-            open -a $DOT_EDITOR $path
+            open -a "$DOT_EDITOR" $path
         end
     end
 end

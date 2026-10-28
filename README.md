@@ -47,6 +47,14 @@ arquivo ficam visíveis e a busca do Finder começa na pasta atual; repetição 
 tecla rápida, Dock sem atraso e Tab navegando nos botões dos diálogos; firewall
 ligado e tela apagando após 30 min parada.
 
+### Pasta de projetos e editor
+
+`config.fish` define `DOT_PROJECTS` (padrão `~/Projetos`) e `DOT_EDITOR` (padrão
+VS Code), usados por `proj`, `gitclone`, `nmreap`, `code` e `devutil ejetar`.
+Aqui `~/Projetos` é um symlink para um SSD externo: as funções que varrem a pasta
+resolvem o caminho real (o `find` e o `fd` não entram em symlink) e avisam
+quando o SSD não está conectado. O `dotdoctor` confere o link e o volume.
+
 ### Configurações locais
 
 Para tokens e configurações específicas da máquina, crie `~/.config.fish.local`.
@@ -88,10 +96,10 @@ das suas `--description`, então não têm como divergir do código.
 
 | Função | O que faz |
 | --- | --- |
-| `proj` | Lista `~/Projetos` no fzf com tipo, versão, Node, status do git e último commit. Abre o escolhido no editor. |
-| `gitclone <url>` | Mostra branch padrão, branches e acesso do repositório remoto antes de confirmar o clone em `~/Projetos`. |
+| `proj` | Lista a pasta de projetos (`$DOT_PROJECTS`) no fzf com tipo, versão, Node, status do git e último commit. Abre o escolhido no editor. |
+| `gitclone <url>` | Mostra branch padrão, branches e acesso do repositório remoto antes de confirmar o clone na pasta de projetos. |
 | `wt` | Git worktrees: troca, cria e remove. `wt new <branch>`, `wt pr <nº>`, `wt rm`, `wt list`. |
-| `nmreap [dir]` | Acha os `node_modules` de `~/Projetos`, mostra tamanho e último commit de cada projeto, e apaga os que você marcar. |
+| `nmreap [dir]` | Acha os `node_modules` da pasta de projetos, mostra tamanho e último commit de cada projeto, e apaga os que você marcar. |
 
 ### Desenvolvimento
 

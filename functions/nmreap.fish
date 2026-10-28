@@ -1,7 +1,10 @@
-function nmreap --description "Acha node_modules em ~/Projetos e libera o espaço que você escolher"
-    set -l base ~/Projetos
+function nmreap --description "Acha node_modules nos projetos e libera o espaço que você escolher"
+    # Caminho real: o `find` não entra no symlink e voltava "nenhum node_modules".
+    set -l base
     if test -n "$argv[1]"
-        set base $argv[1]
+        set base (realpath $argv[1])
+    else
+        set base (_dot_projetos); or return 1
     end
 
     if not test -d $base

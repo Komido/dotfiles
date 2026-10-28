@@ -41,6 +41,15 @@ brew "poppler"
 brew "qpdf"
 
 # --- Apps ---
+# VS Code e iTerm2 entraram em out/2026: o próprio repo depende deles (o
+# DOT_EDITOR do config.fish abre o VS Code; o PATH inclui os utilitários do
+# iTerm), mas um Mac novo terminava o bootstrap sem nenhum dos dois.
+#
+# Num Mac em que já foram instalados à mão (arrastando para Aplicativos), o
+# `brew bundle` falha com "already an App at". Uma vez só, para o Homebrew
+# assumir os apps existentes: brew install --cask --adopt visual-studio-code iterm2
+cask "visual-studio-code"
+cask "iterm2"
 cask "bruno" # cliente de API (GUI); o api_test cobre o caso de terminal
 cask "ngrok" # túnel público — usado pelo `tunnel`
 cask "appcleaner"

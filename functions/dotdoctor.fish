@@ -1,4 +1,4 @@
-function dotdoctor --description "Diagnostica o ambiente: binário sombreado, link órfão, drift do Brewfile"
+function dotdoctor --description "Diagnostica o ambiente: binário sombreado, link órfão, SSD dos projetos, drift do Brewfile"
     set -g _dotdoctor_problemas 0
     set -g _dotdoctor_avisos 0
 
@@ -11,6 +11,7 @@ function dotdoctor --description "Diagnostica o ambiente: binário sombreado, li
     _dotdoctor_path_sombreado
     _dotdoctor_path_inexistente
     _dotdoctor_links_orfaos
+    _dotdoctor_projetos
     _dotdoctor_brewfile
     _dotdoctor_brew_orfaos
     _dotdoctor_descricoes
@@ -190,6 +191,58 @@ function _dotdoctor_links_orfaos --description "Acha symlinks quebrados na confi
         end
         echo "       A função existe no papel e some sem erro ao ser chamada."
         echo "       Correção: dotsetup"
+    end
+end
+
+function _dotdoctor_projetos --description "Confere a pasta de projetos e o SSD onde ela mora"
+    _dotdoctor_titulo "Projetos"
+
+    set -l base $DOT_PROJECTS
+    test -n "$base"; or set base ~/Projetos
+
+    if not test -L $base
+        if test -d $base
+            _dotdoctor_ok "$base é uma pasta comum no disco interno."
+        else
+            _dotdoctor_aviso "$base não existe."
+        end
+        return
+    end
+
+    set -l alvo (readlink $base)
+    if not test -d $base
+        # Com o SSD fora, isso é o esperado: aviso, não problema.
+        _dotdoctor_aviso "$base aponta para $alvo, que não está montado (SSD desconectado)."
+        return
+    end
+    _dotdoctor_ok "$base → $alvo"
+
+    set -l vol (string match -r '^/Volumes/[^/]+' -- (realpath $base))
+    test -n "$vol"; or return
+    set -l info (diskutil info $vol 2>/dev/null)
+
+    # Owners desligado (padrão do macOS em disco externo): todo arquivo parece
+    # seu, e git, npm e Docker se confundem com permissões.
+    if string match -q '*Owners:*Enabled*' -- $info
+        _dotdoctor_ok "Permissões (Owners) ligadas em $vol."
+    else
+        _dotdoctor_erro "Permissões (Owners) desligadas em $vol."
+        echo "     Correção: sudo diskutil enableOwnership $vol"
+    end
+
+    # Sem criptografia, um SSD perdido entrega todos os .env dos projetos.
+    if string match -q '*FileVault:*Yes*' -- $info
+        _dotdoctor_ok "$vol criptografado."
+    else
+        _dotdoctor_aviso "$vol não está criptografado: os .env ficam legíveis se o SSD for perdido."
+    end
+
+    # O Spotlight indexando milhões de arquivos de node_modules é carga à toa.
+    if mdutil -s $vol 2>/dev/null | string match -q '*disabled*'
+        _dotdoctor_ok "Spotlight desligado em $vol."
+    else
+        _dotdoctor_aviso "Spotlight indexando $vol (node_modules gera carga à toa)."
+        echo "     Correção: sudo mdutil -i off $vol"
     end
 end
 

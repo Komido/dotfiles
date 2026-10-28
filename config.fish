@@ -1,9 +1,5 @@
 set -g fish_greeting ""
 
-# Define variáveis de ambiente
-set -gx USER (whoami)
-set -gx HOSTNAME (hostname -s)
-
 # Define a versão padrão do Node.js para nvm.fish.
 # Não use "lts": não é um alias, e sim a pasta alias/lts com gallium/hydrogen/iron/jod
 # dentro — o nvm resolve pelo primeiro em ordem alfabética, gallium, que é o Node 16.
@@ -13,6 +9,11 @@ set -gx nvm_default_version lts/iron # Node 20
 # Fica aqui, e não espalhado: `open -a Cursor` estava escrito na mão dentro do
 # proj, então trocar de editor exigia caçar a string arquivo por arquivo.
 set -gx DOT_EDITOR "Visual Studio Code"
+
+# Pasta dos projetos (proj, gitclone, nmreap, devutil ejetar), pelo mesmo motivo.
+# É um symlink para o SSD externo; as funções que varrem a pasta resolvem o
+# caminho real pelo _dot_projetos, que também avisa quando o SSD não está plugado.
+set -gx DOT_PROJECTS $HOME/Projetos
 
 # --- Autoload das funções em subpastas ---
 # O $fish_function_path não é recursivo: um devutil_uuid.fish dentro de
@@ -71,7 +72,12 @@ if status is-interactive
     alias cat="bat --theme=\$(defaults read -globalDomain AppleInterfaceStyle &> /dev/null && echo default || echo GitHub)"
     alias l="ls -la"
     alias ls="eza --color=always --long --git --no-filesize --icons=always --no-time --no-user --no-permissions"
-    alias code="open -a '$DOT_EDITOR'"
+    # Só quando não há o CLI de verdade: o `code` do VS Code (linkado pelo cask
+    # do Homebrew) faz bem mais que o `open -a` (-r, -g arquivo:linha, --diff,
+    # --wait como editor do git), e o alias passaria na frente dele.
+    if not command -q code
+        alias code="open -a '$DOT_EDITOR'"
+    end
 
     # Configurações do fzf
     set -gx FZF_CTRL_T_OPTS "
