@@ -39,9 +39,13 @@ dotsetup
 O `install.fish` é idempotente: rodar de novo só reafirma o estado. Ele também
 remove links de funções que não existem mais no repo.
 
-Ele também aplica dois ajustes de Espaços do macOS: clicar num app leva até a
-janela dele, mesmo em outra mesa, e as mesas não mudam de ordem sozinhas. Sem
-isso, o app parece não abrir quando a janela está em outro Espaço.
+Ele também aplica ajustes do macOS, cada um com o motivo comentado no script:
+clicar num app leva até a janela dele mesmo em outra mesa, as mesas não mudam de
+ordem sozinhas, janelas novas não viram abas e minimizadas não somem no ícone;
+aspas, travessões e pontos não são trocados automaticamente; extensões de
+arquivo ficam visíveis e a busca do Finder começa na pasta atual; repetição de
+tecla rápida, Dock sem atraso e Tab navegando nos botões dos diálogos; firewall
+ligado e tela apagando após 30 min parada.
 
 ### Configurações locais
 

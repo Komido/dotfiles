@@ -179,36 +179,106 @@ else
 end
 
 # --- Ajustes do macOS ---
-# Sintoma que motivou: clicar num app no Dock e a janela "nunca vir para frente",
-# obrigando a procurar. Com AppleSpacesSwitchOnActivate em 0, o macOS ativa o app
-# mas continua no Espaço atual, e a janela dele (em outra mesa ou em tela cheia)
-# fica invisível. O mru-spaces padrão piorava: os Espaços mudam de ordem sozinhos
-# pelo uso recente, então nem dava para saber em qual mesa procurar.
+# Cada linha tem um motivo concreto, não é preferência estética:
 #
-# Só escreve o que está diferente e só reinicia o Dock se algo mudou: rodar o
-# install de novo não deve piscar o Dock à toa.
+# Janelas que "não abriam" ao clicar no Dock (out/2026). A causa principal era o
+# AppleSpacesSwitchOnActivate em 0: o macOS ativava o app mas ficava no Espaço
+# atual, e a janela (em outra mesa ou em tela cheia) não aparecia. Somavam-se:
+#   - mru-spaces: Espaços mudando de ordem sozinhos, sem saber onde procurar;
+#   - AppleWindowTabbingMode "always": janela nova virava aba de outra janela;
+#   - minimize-to-application: janela minimizada sumia dentro do ícone do app;
+#   - expose-group-apps: Mission Control empilhava as janelas por app.
+#
+# Texto: troca automática de aspas, travessões e pontos estraga comando e JSON
+# colados de campos nativos (Notas, Mail). Finder: extensão escondida permite um
+# `.env.txt` passar despercebido; a busca começa na pasta atual, não no Mac todo.
+#
+# Produtividade: repetição de tecla rápida (andar no código com setas/backspace),
+# Dock oculto aparecendo sem atraso e Tab navegando também nos botões dos
+# diálogos. No macOS 13+ o valor que liga "Navegação pelo teclado" é 2 (era 3).
+#
+# Só escreve o que está diferente e só reinicia Dock/Finder se algo deles mudou:
+# rodar o install de novo não deve piscar nada à toa.
 echo ""
 echo "🍎 Verificando ajustes do macOS..."
-set -l dock_mudou 0
-# domínio, chave e valor esperado; bool como 1/0, que é o que o `defaults read` devolve.
-for ajuste in "NSGlobalDomain AppleSpacesSwitchOnActivate 1" "com.apple.dock mru-spaces 0"
+set -l reiniciar
+set -l teclado_mudou 0
+# domínio, chave, tipo e valor esperado. Bool como 1/0, que é o que o
+# `defaults read` devolve; o `defaults write` recebe true/false.
+for ajuste in \
+        "NSGlobalDomain AppleSpacesSwitchOnActivate bool 1" \
+        "com.apple.dock mru-spaces bool 0" \
+        "com.apple.dock minimize-to-application bool 0" \
+        "com.apple.dock expose-group-apps bool 0" \
+        "NSGlobalDomain AppleWindowTabbingMode string fullscreen" \
+        "NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled bool 0" \
+        "NSGlobalDomain NSAutomaticDashSubstitutionEnabled bool 0" \
+        "NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled bool 0" \
+        "NSGlobalDomain AppleShowAllExtensions bool 1" \
+        "com.apple.finder FXDefaultSearchScope string SCcf" \
+        "com.apple.dock autohide-delay float 0" \
+        "NSGlobalDomain KeyRepeat int 2" \
+        "NSGlobalDomain InitialKeyRepeat int 15" \
+        "NSGlobalDomain AppleKeyboardUIMode int 2"
     set -l a (string split ' ' -- $ajuste)
     set -l atual (defaults read $a[1] $a[2] 2>/dev/null)
-    if test "$atual" != "$a[3]"
+    test "$atual" = "$a[4]"; and continue
+
+    if test $a[3] = bool
         set -l valor false
-        test $a[3] = 1; and set valor true
+        test $a[4] = 1; and set valor true
         defaults write $a[1] $a[2] -bool $valor
-        echo "🔧 $a[2]: "(test -n "$atual"; and echo $atual; or echo padrão)" → $a[3]"
-        set dock_mudou 1
+    else
+        defaults write $a[1] $a[2] -$a[3] $a[4]
+    end
+    echo "🔧 $a[2]: "(test -n "$atual"; and echo $atual; or echo padrão)" → $a[4]"
+
+    # Espaços, Mission Control e Dock são do processo Dock; extensões e busca, do
+    # Finder. As de texto valem para cada app na próxima vez que ele abrir, e as
+    # de repetição de tecla só depois de sair e entrar de novo na sessão.
+    switch $a[1]
+        case com.apple.dock
+            contains Dock $reiniciar; or set -a reiniciar Dock
+        case com.apple.finder
+            contains Finder $reiniciar; or set -a reiniciar Finder
+    end
+    if test $a[2] = AppleSpacesSwitchOnActivate
+        contains Dock $reiniciar; or set -a reiniciar Dock
+    end
+    if test $a[2] = AppleShowAllExtensions
+        contains Finder $reiniciar; or set -a reiniciar Finder
+    end
+    if string match -q '*KeyRepeat' $a[2]
+        set teclado_mudou 1
     end
 end
-# Os Espaços são do Dock: as duas chaves só valem depois que ele reinicia.
-if test $dock_mudou -eq 1
-    killall Dock
-    echo "✅ Ajustes aplicados (Dock reiniciado)."
+if test (count $reiniciar) -gt 0
+    killall $reiniciar
+    echo "✅ Ajustes aplicados (reiniciado: $reiniciar)."
 else
     echo "✅ Ajustes do macOS já estão como esperado."
 end
+if test $teclado_mudou -eq 1
+    echo "ℹ️  A repetição de tecla nova vale depois de sair e entrar de novo na sessão."
+end
+
+# Firewall: estava desligado com o Chrome Remote Desktop ativo e dev servers
+# abrindo portas. Só pede senha (sudo) se estiver desligado de fato.
+set -l fw /usr/libexec/ApplicationFirewall/socketfilterfw
+if not $fw --getglobalstate 2>/dev/null | string match -q '*enabled*'
+    echo "🛡️  Ligando o firewall do macOS (vai pedir sua senha)..."
+    sudo $fw --setglobalstate on >/dev/null
+end
+echo "✅ Firewall ligado."
+
+# Tela apagando depois de 30 min parada (estava em 2 h): menos tempo com o Mac
+# desbloqueado e aceso quando você se afasta. Vale para bateria e carregador.
+set -l tela (pmset -g | string match -r -g '^\s*displaysleep\s+(\d+)')
+if test "$tela" != 30
+    echo "💤 Tela apaga após 30 min (era $tela min; vai pedir sua senha)..."
+    sudo pmset -a displaysleep 30
+end
+echo "✅ Tela apaga após 30 min parada."
 
 # Define Fish como shell padrão.
 #
