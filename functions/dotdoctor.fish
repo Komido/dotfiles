@@ -271,7 +271,9 @@ function _dotdoctor_brewfile --description "Compara o Brewfile com o que está i
         _dotdoctor_ok "Tudo que o Brewfile lista está instalado."
     else
         _dotdoctor_erro "O Brewfile lista coisas que não estão instaladas aqui."
-        brew bundle check --file $brewfile 2>&1 | string match -r '^→.*' | head -10
+        # Sem --verbose o check só diz que falhou, sem listar o quê: o aviso saía
+        # vazio. Com ele, cada item vem numa linha começando com a seta.
+        brew bundle check --verbose --file $brewfile 2>&1 | string match -r '^→.*' | head -10 | sed 's/^/       /'
         echo "       Correção: dotsetup"
     end
 
