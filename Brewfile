@@ -26,9 +26,14 @@ brew "jo"
 
 # --- Git e GitHub ---
 brew "gh" # usado pelo `wt` e pelo fluxo de PR
+brew "gitleaks" # varre o repo atrás de segredo commitado (chave, token, .env)
 
 # --- Bancos ---
 brew "libpq" # psql sem instalar o Postgres inteiro
+
+# --- Nuvem ---
+brew "awscli" # o perfil AWS usado nos projetos e pela extensão do VS Code
+brew "minio-mc" # cliente de storage compatível com S3
 
 # --- Java / Android ---
 brew "openjdk@17"
@@ -54,6 +59,8 @@ cask "bruno" # cliente de API (GUI); o api_test cobre o caso de terminal
 cask "ngrok" # túnel público — usado pelo `tunnel`
 cask "appcleaner"
 cask "maccy" # histórico de área de transferência
+cask "codex" # agente de código da OpenAI no terminal
+cask "rustdesk" # acesso remoto
 
 # --- Fonte ---
 # O install.fish só imprimia "🎨 Lembrete: configure a JetBrainsMono Nerd Font".
