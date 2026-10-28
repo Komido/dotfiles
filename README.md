@@ -39,6 +39,10 @@ dotsetup
 O `install.fish` é idempotente: rodar de novo só reafirma o estado. Ele também
 remove links de funções que não existem mais no repo.
 
+Ele também aplica dois ajustes de Espaços do macOS: clicar num app leva até a
+janela dele, mesmo em outra mesa, e as mesas não mudam de ordem sozinhas. Sem
+isso, o app parece não abrir quando a janela está em outro Espaço.
+
 ### Configurações locais
 
 Para tokens e configurações específicas da máquina, crie `~/.config.fish.local`.
@@ -156,7 +160,7 @@ api_test get 'https://api.example.com/users?page=1&limit=10'
 
 ```
 bootstrap.sh          bash — o mínimo para o fish existir numa máquina zero
-install.fish          fish — links, Brewfile, fisher, node, shell padrão
+install.fish          fish — links, Brewfile, fisher, node, ajustes do macOS, shell padrão
 Brewfile              tudo que a máquina precisa ter instalado
 config.fish           PATH, autoload, aliases, prompt, nvm
 functions/*.fish      uma função por arquivo (o nome do arquivo é o nome da função)

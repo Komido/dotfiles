@@ -178,6 +178,38 @@ else
     echo "⚠️  nvm.fish indisponível nesta sessão — rode 'exec fish' e depois 'nvm install lts/iron'."
 end
 
+# --- Ajustes do macOS ---
+# Sintoma que motivou: clicar num app no Dock e a janela "nunca vir para frente",
+# obrigando a procurar. Com AppleSpacesSwitchOnActivate em 0, o macOS ativa o app
+# mas continua no Espaço atual, e a janela dele (em outra mesa ou em tela cheia)
+# fica invisível. O mru-spaces padrão piorava: os Espaços mudam de ordem sozinhos
+# pelo uso recente, então nem dava para saber em qual mesa procurar.
+#
+# Só escreve o que está diferente e só reinicia o Dock se algo mudou: rodar o
+# install de novo não deve piscar o Dock à toa.
+echo ""
+echo "🍎 Verificando ajustes do macOS..."
+set -l dock_mudou 0
+# domínio, chave e valor esperado; bool como 1/0, que é o que o `defaults read` devolve.
+for ajuste in "NSGlobalDomain AppleSpacesSwitchOnActivate 1" "com.apple.dock mru-spaces 0"
+    set -l a (string split ' ' -- $ajuste)
+    set -l atual (defaults read $a[1] $a[2] 2>/dev/null)
+    if test "$atual" != "$a[3]"
+        set -l valor false
+        test $a[3] = 1; and set valor true
+        defaults write $a[1] $a[2] -bool $valor
+        echo "🔧 $a[2]: "(test -n "$atual"; and echo $atual; or echo padrão)" → $a[3]"
+        set dock_mudou 1
+    end
+end
+# Os Espaços são do Dock: as duas chaves só valem depois que ele reinicia.
+if test $dock_mudou -eq 1
+    killall Dock
+    echo "✅ Ajustes aplicados (Dock reiniciado)."
+else
+    echo "✅ Ajustes do macOS já estão como esperado."
+end
+
 # Define Fish como shell padrão.
 #
 # Consulta o shell de login no diretório do usuário, e não $SHELL: essa variável
