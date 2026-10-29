@@ -54,8 +54,8 @@ function _devutil_menu_preview --description "Preview de cada item do menu do de
             set acao "⏎ abre o gerenciador."
         case ejetar
             set titulo "⏏️  Ejetar SSD externo"
-            set desc "Fecha o que usa /Volumes/Dev (editor, dev servers) e ejeta com segurança."
-            set acao "⏎ lista o que está usando, pede confirmação e ejeta."
+            set desc "Ejeta o SSD: fechando os apps (seguro) ou mantendo VS Code e Claude abertos (rápido)."
+            set acao "⏎ lista o que está usando e pergunta o modo."
         case sair
             echo "🚪 Fecha o menu."
             return 0

@@ -142,7 +142,7 @@ e Esc sai. `devutil <nome>` roda o subcomando direto, sem menu.
 | `jwt <token>` | Decodifica header, payload e validade. |
 | `ports` | Lista processos escutando em portas TCP e encerra o escolhido. |
 | `tempmail` | E-mails descartáveis via mail.tm. A sessão persiste em `~/.cache/tempmail.json`, então a caixa sobrevive entre usos. |
-| `ejetar [volume]` | Ejeta o SSD externo (padrão `/Volumes/Dev`) com segurança: mostra quais apps e projetos seguram o disco, fecha editores pelo AppleScript, manda SIGTERM em dev servers soltos e ejeta. Só força a desmontagem quando o que sobra é a VM do app Claude, e nunca com o Docker Desktop aberto. |
+| `ejetar [volume]` | Ejeta o SSD externo (padrão: onde mora `$DOT_PROJECTS`). Mostra quais apps e projetos seguram o disco e oferece dois modos: **seguro**, que fecha os editores pelo AppleScript e ejeta; ou **rápido**, que mantém abertos só os apps que aguentam a pasta sumir (VS Code, Cursor, Claude), fecha normalmente os demais e desmonta por baixo, mas só depois de verificar que nada está gravando: recusa se houver install, build, migration ou agente de IA trabalhando, para os dev servers, espera o `git` e confere que nenhum arquivo está aberto para escrita (depois de reconectar, Reload Window no VS Code). Nunca força com o Docker Desktop aberto. |
 
 Os geradores copiam o valor **cru** para a área de transferência — pronto para
 colar em input de formulário; CPF e CNPJ mostram a forma com máscara só na
