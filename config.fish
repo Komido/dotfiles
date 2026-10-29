@@ -85,6 +85,19 @@ if status is-interactive
       --walker-skip .git,node_modules,target
       --preview 'bat -n --color=always {}'
       --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+
+    # Picker do `cdi` (zoxide): Enter entra na pasta, Ctrl+O entra e já abre no
+    # editor. Definir _ZO_FZF_OPTS substitui TODAS as opções padrão do zoxide,
+    # então as dele vêm repetidas aqui; o preview usa o eza (está no Brewfile)
+    # em vez do `ls`. O `open -a` com o DOT_EDITOR funciona com qualquer editor,
+    # tenha ele CLI ou não.
+    set -gx _ZO_FZF_OPTS "--height=45% --layout=reverse --border=sharp --info=inline
+      --cycle --keep-right --tabstop=1 --exit-0 --select-1
+      --bind=ctrl-z:ignore,btab:up,tab:down
+      --preview='eza --color=always --group-directories-first {2..}'
+      --preview-window=down,30%,sharp
+      --header='enter: entrar  ·  ctrl-o: entrar e abrir no editor'
+      --bind='ctrl-o:execute-silent(open -a \"$DOT_EDITOR\" {2..})+accept'"
 end
 
 # --- Node.js via nvm.fish ---
